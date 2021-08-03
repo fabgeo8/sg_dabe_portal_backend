@@ -1,19 +1,61 @@
 module.exports = (sequelize, Sequelize) => {
 
-    const Event = sequelize.define("Event", {
+    const FuelApplication = sequelize.define("FuelApplication", {
         identifier: {
             type: Sequelize.STRING
         },
-        title: {
+        municipal: {
             type: Sequelize.STRING
         },
-        startDate: {
-            type: Sequelize.DATEONLY
+        egid: {
+            type: Sequelize.STRING
         },
-        endDate: {
-            type: Sequelize.DATEONLY
-        }
+        object_street: {
+            type: Sequelize.STRING
+        },
+        object_streetnumber: {
+            type: Sequelize.STRING
+        },
+        object_zip: {
+            type: Sequelize.STRING
+        },
+        object_city: {
+            type: Sequelize.STRING
+        },
+        object_plot: {
+            type: Sequelize.STRING
+        },
+        generator_area: {
+            type: Sequelize.STRING
+        },
+        year_of_construction: {
+            type: Sequelize.INTEGER
+        },
+        boiler_replacement_year: {
+            type: Sequelize.INTEGER
+        },
+        fuel_type: {
+            type: Sequelize.STRING
+        },
+        contact_name: {
+            type: Sequelize.STRING
+        },
+        contact_phone: {
+            type: Sequelize.STRING
+        },
+        contact_email: {
+            type: Sequelize.STRING
+        },
+        builder_name: {
+            type: Sequelize.STRING
+        },
+        builder_street: {
+            type: Sequelize.STRING
+        },
+        builder_location: {
+            type: Sequelize.STRING
+        },
     });
 
-    return Event;
+    return FuelApplication;
 };

@@ -19,14 +19,11 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-/* import models
-db.Event = require("./pv_application.js")(sequelize, Sequelize);
-db.EventWindow = require("./event_window")(sequelize, Sequelize);
-db.EventLocation = require("./event_location")(sequelize, Sequelize);
-db.Operator = require("./operator")(sequelize, Sequelize);
-db.User = require("./user")(sequelize, Sequelize);
-db.Setting = require("./setting")(sequelize, Sequelize);
-*/
+
+db.FuelApplication = require("./fuel_application")(sequelize, Sequelize);
+db.PvApplication = require("./pv_application")(sequelize, Sequelize);
+db.Muncipal = require("./municipals")(sequelize, Sequelize);
+
 /* define relations
 db.Event.hasMany(db.EventWindow);
 db.EventWindow.belongsTo(db.Event)
