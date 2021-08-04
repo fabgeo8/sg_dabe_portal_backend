@@ -9,6 +9,7 @@ const apiPath = '/api/v1/';
 
 var indexRouter = require('./routes/index');
 var municipalRouter = require('./routes/municipals');
+var pvApplicationRouter = require('./routes/pv_applications');
 
 const app = express();
 
@@ -18,7 +19,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 var corsOptions = {
-    credentials: true,
+    // credentials: true,
     origin: process.env.CORS_ORIGIN
 }
 
@@ -36,6 +37,7 @@ db.sequelize.sync({
 //include routes
 app.use(apiPath, indexRouter);
 app.use(apiPath + 'municipals', municipalRouter);
+app.use(apiPath + 'pv_applications', pvApplicationRouter);
 
 app.listen(process.env.PORT || 3005, () => {
     console.log("Server has started!")

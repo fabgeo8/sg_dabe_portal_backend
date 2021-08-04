@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "nodemon --exec \"node --inspect-brk=0.0.0.0:9229 --require ts-node/register src/app.ts\""
   },
   "repository": {
     "type": "git",
@@ -20,8 +21,10 @@
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
+    "dateformat": "^4.5.1",
     "dotenv": "^9.0.2",
     "express": "^4.17.1",
+    "moment": "^2.29.1",
     "mysql2": "^2.2.5",
     "path": "^0.12.7",
     "sequelize": "^6.6.2"

@@ -7,8 +7,11 @@ module.exports = (sequelize, Sequelize) => {
             //DATE_EGID/PLOT_VERSION
             //20210713_123451_1
         },
+        version: {
+            type: Sequelize.INTEGER
+        },
         municipal: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         egid: {
             type: Sequelize.STRING
@@ -46,7 +49,7 @@ module.exports = (sequelize, Sequelize) => {
         builder_location: {
             type: Sequelize.STRING
         },
-        builder_email: {
+        builder_name: {
             type: Sequelize.STRING
         },
         fee: {
