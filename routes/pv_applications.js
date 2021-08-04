@@ -4,17 +4,6 @@ const models = require('../models')
 const {Op} = require("sequelize");
 const moment = require('moment');
 
-router.get('/', async (req, res) => {
-    console.log("hallo velo")
-    res.send("OK")
-})
-
-router.post('/test', async (req, res) => {
-    // try {
-    console.log("request ok")
-    res.send('ok')
-})
-
 router.post('/', async (req, res) => {
     try {
         console.log("request ok")
