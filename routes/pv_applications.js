@@ -3,10 +3,11 @@ const router = express.Router();
 const models = require('../models')
 const {Op} = require("sequelize");
 const moment = require('moment');
+const pdf = require('pdf-creator-node');
+const fs = require('fs');
 
 router.post('/', async (req, res) => {
     try {
-        console.log("request ok")
         let pvApplication = await models.PvApplication.build({
             egid: req.body.egid,
             object_street: req.body.object_street,
@@ -74,6 +75,39 @@ router.post('/', async (req, res) => {
     } catch (err) {
         res.status(404).send({error: "event could not be created"})
     }
+})
+
+router.get('/:id/pdf', async (req, res) => {
+
+    let html = fs.readFileSync('templates/pv_application.html','utf8');
+
+    let options = {
+        format: "A4",
+        orientation: "portrait",
+        border: "10mm",
+    };
+
+    let document = {
+        html: html,
+        data: {
+            name: "Fabio",
+            name2: "Göldi"
+        },
+        path: "./temp.pdf",
+        type: "stream",
+    };
+
+    pdf
+        .create(document, options)
+        .then((doc) => {
+            res.download(doc.path)
+            console.log(doc);
+        })
+        .catch((error) => {
+            res.send(error)
+            console.error(error);
+        });
+
 })
 
 module.exports = router;
