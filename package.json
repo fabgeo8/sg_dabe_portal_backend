@@ -24,10 +24,14 @@
     "dateformat": "^4.5.1",
     "dotenv": "^9.0.2",
     "express": "^4.17.1",
+    "handlebars": "^4.7.7",
     "moment": "^2.29.1",
     "mysql2": "^2.2.5",
     "path": "^0.12.7",
     "pdf-creator-node": "^2.2.3",
+    "phantom-html-to-pdf": "^0.6.1",
+    "puppeteer": "^10.2.0",
+    "puppeteer-core": "^10.2.0",
     "sequelize": "^6.6.2"
   },
   "devDependencies": {
