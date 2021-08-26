@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const models = require('../models')
-const {Op} = require("sequelize");
+const {Op, UUIDV4} = require("sequelize");
 const moment = require('moment');
 const pdf = require('pdf-creator-node');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 router.post('/', async (req, res) => {
     try {
@@ -21,11 +22,19 @@ router.post('/', async (req, res) => {
             contact_email: req.body.contact_email,
             builder_street: req.body.builder_street,
             builder_location: req.body.builder_location,
-            builder_name: req.body.builder_name
+            builder_name: req.body.builder_name,
         })
 
+        let identifier = moment().format('YYMMDD')
         //todo replace moment.js
-        let identifier = moment().format('YYMMDD') + '_' + req.body.egid;
+        if (req.body.egid) {
+            identifier = identifier + '_' + req.body.egid;
+        }else if (req.body.object_plot){
+            identifier = identifier + '_' + req.body.object_plot;
+        }else {
+            res.status(404).send("invalid request")
+            return
+        }
 
         let date = new Date()
         date.setHours(0, 0, 0, 0)
@@ -69,9 +78,13 @@ router.post('/', async (req, res) => {
             return
         }
 
+        pvApplication.pdf_identifier = uuidv4()
+
         await pvApplication.save()
 
-        res.status(200).send("created")
+        res.status(200).send({
+            pdf_identifier: pvApplication.pdf_identifier
+        })
     } catch (err) {
         res.status(404).send({error: "event could not be created"})
     }
@@ -411,7 +424,7 @@ router.get('/:id/pdf2', async (req, res) => {
 
 })
 
-router.get('/:id/pdf', async (req, res) => {
+router.get('/pdf/:identifier', async (req, res) => {
 
     let html = fs.readFileSync('templates/pv_application.html', 'utf8');
 
@@ -421,11 +434,21 @@ router.get('/:id/pdf', async (req, res) => {
         border: "8.8mm",
     };
 
+
+    let pvApplication = await models.PvApplication.findOne({ where : { pdf_identifier: req.params.identifier }})
+
+    if (!pvApplication) {
+        res.status(404).send("invalid pdf")
+    }
+
+    let municipal = await models.Muncipal.findByPk(pvApplication.municipal)
+
     let document = {
         html: html,
         data: {
-            name: "Fabio",
-            name2: "Göldi"
+            application: pvApplication.dataValues,
+            municipal: municipal.dataValues,
+            fee: getPVFee(pvApplication.dataValues.generator_area)
         },
         path: "pdf/temp.pdf",
         type: "stream",
@@ -463,5 +486,19 @@ router.get('/:id/pdf', async (req, res) => {
 //     });
 //
 // })
+
+function getPVFee(area) {
+    let fee = 0;
+    if (area >= 3000) {
+        fee = 81000
+    }else {
+        fee = area * 0.01 * 2700
+    }
+    return numberWithDelimiter(fee)
+}
+
+function numberWithDelimiter(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+}
 
 module.exports = router;

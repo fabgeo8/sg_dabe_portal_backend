@@ -55,6 +55,9 @@ module.exports = (sequelize, Sequelize) => {
         fee: {
             type: Sequelize.FLOAT
         },
+        pdf_identifier: {
+            type: Sequelize.STRING
+        }
     });
 
     return PvApplication;

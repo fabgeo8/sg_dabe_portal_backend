@@ -29,7 +29,7 @@ app.use(require('cookie-parser')());
 
 //connect db
 db.sequelize.sync({
-    // force: true
+    //force: true
 }).then(() => {
     console.log('synchroniseModels: Success!');
 }).catch(err => console.log(err));

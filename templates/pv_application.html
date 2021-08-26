@@ -7,15 +7,14 @@
     <style>
 
         body {
-
-            font-family: Arial;
+            font-family: "Arial", sans-serif;
             font-size: 11px;
             padding: 0;
             margin: 0;
         }
 
         h1 {
-            font-family: Arial;
+            font-family: "Arial", sans-serif;
             font-size: 18px;
         }
 
@@ -62,6 +61,10 @@
             background-color: rgb(222, 229, 255);
         }
 
+        table td label {
+            font-size: 7px;
+        }
+
         table td.double input {
             width: 100%;
         }
@@ -72,7 +75,7 @@
 
         .wrapper {
             position: relative;
-            width: 100%;
+            width: 14cm;
         }
 
         #signature-wrapper {
@@ -109,15 +112,15 @@
         Anlage. Sie wird mit den Baubewilligungsgebühren erhoben. Ausgenommen sind kleinere Erweiterungen bestehender
         Bauten (siehe Ausnahmen nach Art.4d EnV).</p>
     <h2>A. Angaben zum Gebäude</h2>
+    <p>Test {{ municipal.name }}</p>
     <table>
         <tr>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ municipal.name }}"/>
                 <label>Gemeinde</label>
             </td>
             <td>
-                <input type="text" value="St. Gallen"/>
-                <label>Gemeinde</label>
+                <input type="text" style="visibility: hidden">
             </td>
         </tr>
     </table>
@@ -127,27 +130,27 @@
     <table>
         <tr>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.object_street }}"/>
                 <label>Strasse</label>
             </td>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.object_streetnumber }}"/>
                 <label>Hausnummer</label>
             </td>
         </tr>
         <tr>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.object_zip }}"/>
                 <label>PLZ</label>
             </td>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.object_city }}"/>
                 <label>Ort</label>
             </td>
         </tr>
         <tr>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.object_plot }}"/>
                 <label>Parzelle</label>
             </td>
             <td>
@@ -155,11 +158,11 @@
         </tr>
         <tr>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.egid }}"/>
                 <label>Eidg. Gebäudeidentifikator</label>
             </td>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.generator_area }}"/>
                 <label>Energiebezugsfläche in m&sup2;</label>
             </td>
         </tr>
@@ -170,7 +173,7 @@
     <table>
         <tr>
             <td class="double">
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.builder_name }}"/>
                 <label>Name, Vorname</label>
             </td>
         </tr>
@@ -178,11 +181,11 @@
     <table>
         <tr>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.builder_street }}"/>
                 <label>Strasse, Nr.</label>
             </td>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.builder_location }}"/>
                 <label>PLZ, Ort</label>
             </td>
         </tr>
@@ -194,7 +197,7 @@
     <table>
         <tr>
             <td class="double">
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.contact_name }}"/>
                 <label>Name, Vorname</label>
             </td>
         </tr>
@@ -202,11 +205,11 @@
     <table>
         <tr>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.contact_phone }}"/>
                 <label>Telefon</label>
             </td>
             <td>
-                <input type="text" value="St. Gallen"/>
+                <input type="text" value="{{ application.contact_email }}"/>
                 <label>E-Mail</label>
             </td>
         </tr>
@@ -219,7 +222,7 @@
         Deklaration Ersatzabgabe / 17.5.2021
     </p>
 
-    <span style="position: absolute; top: 27cm; right: 0">
+    <span style="position: absolute; top: 20cm; right: 0">
     <b>1 / 2</b>
 </span>
 
@@ -253,7 +256,7 @@
         <h2>B. Deklaration Hauseigentümerin oder Hauseigentümer</h2>
         <p>
             Die Hauseigentümerin oder der Hauseigentümer der Baute gemäss Bst. A anerkennen und erklären sich bereit
-            eine Ersatzabgabe in der Höhe von <b>4'555</b> Franken zu entrichten.
+            eine Ersatzabgabe in der Höhe von <b>{{ fee }}</b> Franken zu entrichten.
         </p>
         <table style="margin-top: 2cm">
             <tr>
@@ -280,7 +283,7 @@
         Lämmlisbrunnenstrasse 54, 9001 St.Gallen, Telefon 058 229 30 99, info.awe@sg.ch<br>
         Deklaration Ersatzabgabe / 17.5.2021
     </p>
-    <span style="position: absolute; top: 43cm; right: 0">
+    <span style="position: absolute; top: 41cm; right: 0">
         <b>2 / 2</b>
         </span>
 
