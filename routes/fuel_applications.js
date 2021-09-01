@@ -6,10 +6,11 @@ const moment = require('moment');
 const pdf = require('pdf-creator-node');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const path = require("path");
 
 router.post('/', async (req, res) => {
     try {
-        let pvApplication = await models.PvApplication.build({
+        let fuelApplication = await models.FuelApplication.build({
             egid: req.body.egid,
             object_street: req.body.object_street,
             object_streetnumber: req.body.object_streetnumber,
@@ -17,6 +18,9 @@ router.post('/', async (req, res) => {
             object_city: req.body.object_city,
             object_plot: req.body.object_plot,
             generator_area: req.body.generator_area,
+            year_of_construction: req.body.year_of_construction,
+            fuel_type: req.body.fuel_type,
+            boiler_replacement_year: req.body.boiler_replacement_year,
             contact_name: req.body.contact_name,
             contact_phone: req.body.contact_phone,
             contact_email: req.body.contact_email,
@@ -40,11 +44,11 @@ router.post('/', async (req, res) => {
         date.setHours(0, 0, 0, 0)
 
         //check if an application for this address has already been made on this day
-        let previousVersion = await models.PvApplication.findAll({
+        let previousVersion = await models.FuelApplication.findAll({
             where: {
-                object_street: pvApplication.object_street,
-                object_streetnumber: pvApplication.object_streetnumber,
-                object_zip: pvApplication.object_zip,
+                object_street: fuelApplication.object_street,
+                object_streetnumber: fuelApplication.object_streetnumber,
+                object_zip: fuelApplication.object_zip,
                 createdAt: {
                     [Op.gte]: date
                 }
@@ -57,33 +61,33 @@ router.post('/', async (req, res) => {
         if (previousVersion.length > 0) {
             // there are previous version for same address
             // get highest version number of previous versions
-            pvApplication.version = previousVersion[0].version + 1
+            fuelApplication.version = previousVersion[0].version + 1
         } else {
             // first version
-            pvApplication.version = 1
+            fuelApplication.version = 1
         }
 
         // assign identifier to application
-        identifier = identifier + '_' + pvApplication.version
-        pvApplication.identifier = identifier
+        identifier = identifier + '_' + fuelApplication.version
+        fuelApplication.identifier = identifier
 
         // get municipal id and check if municipal is available in municipal table
         // this is important to have reference for municipal contact email
         let municipal = await models.Muncipal.findByPk(req.body.municipal);
 
         if (municipal) {
-            pvApplication.municipal = req.body.municipal
+            fuelApplication.municipal = req.body.municipal
         } else {
             res.status(404).send({error: 'invalid municipal'})
             return
         }
 
-        pvApplication.pdf_identifier = uuidv4()
+        fuelApplication.pdf_identifier = uuidv4()
 
-        await pvApplication.save()
+        await fuelApplication.save()
 
         res.status(200).send({
-            pdf_identifier: pvApplication.pdf_identifier
+            pdf_identifier: fuelApplication.pdf_identifier
         })
     } catch (err) {
         res.status(404).send({error: "event could not be created"})
@@ -92,7 +96,7 @@ router.post('/', async (req, res) => {
 
 router.get('/pdf/:identifier', async (req, res) => {
 
-    let html = fs.readFileSync('templates/pv_application.html', 'utf8');
+    let html = fs.readFileSync('templates/fuel_application.html', 'utf8');
 
     let options = {
         format: "A4",
@@ -101,20 +105,20 @@ router.get('/pdf/:identifier', async (req, res) => {
     };
 
 
-    let pvApplication = await models.PvApplication.findOne({ where : { pdf_identifier: req.params.identifier }})
+    let fuelApplication = await models.FuelApplication.findOne({ where : { pdf_identifier: req.params.identifier }})
 
-    if (!pvApplication) {
+    if (!fuelApplication) {
         res.status(404).send("invalid pdf")
     }
 
-    let municipal = await models.Muncipal.findByPk(pvApplication.municipal)
+    let municipal = await models.Muncipal.findByPk(fuelApplication.municipal)
 
     let document = {
         html: html,
         data: {
-            application: pvApplication.dataValues,
+            application: fuelApplication.dataValues,
             municipal: municipal.dataValues,
-            fee: getPVFee(pvApplication.dataValues.generator_area)
+            fee: getPVFee(fuelApplication.dataValues.generator_area)
         },
         path: "pdf/temp.pdf",
         type: "stream",
@@ -134,34 +138,6 @@ router.get('/pdf/:identifier', async (req, res) => {
 
 })
 
-// router.get('/:id/pdf3', async (req, res) => {
-//     var fs = require('fs')
-//
-//     let html = fs.readFileSync('templates/pv_application.html', 'utf8');
-//
-//
-//     var conversion = require("phantom-html-to-pdf")();
-//     conversion({ html: "<h1>Hello World</h1>" }, function(err, pdf) {
-//         var output = fs.createWriteStream('/path/to/output.pdf')
-//         console.log(pdf.logs);
-//         console.log(pdf.numberOfPages);
-//         // since pdf.stream is a node.js stream you can use it
-//         // to save the pdf to a file (like in this example) or to
-//         // respond an http request.
-//         pdf.stream.pipe(output);
-//     });
-//
-// })
-
-function getPVFee(area) {
-    let fee = 0;
-    if (area >= 3000) {
-        fee = 81000
-    }else {
-        fee = area * 0.01 * 2700
-    }
-    return numberWithDelimiter(fee)
-}
 
 function numberWithDelimiter(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");

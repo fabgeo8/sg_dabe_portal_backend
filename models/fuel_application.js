@@ -4,6 +4,9 @@ module.exports = (sequelize, Sequelize) => {
         identifier: {
             type: Sequelize.STRING
         },
+        version: {
+            type: Sequelize.INTEGER
+        },
         municipal: {
             type: Sequelize.STRING
         },
@@ -55,6 +58,9 @@ module.exports = (sequelize, Sequelize) => {
         builder_location: {
             type: Sequelize.STRING
         },
+        pdf_identifier: {
+            type: Sequelize.STRING
+        }
     });
 
     return FuelApplication;

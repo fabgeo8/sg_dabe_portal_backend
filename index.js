@@ -10,6 +10,7 @@ const apiPath = '/api/v1/';
 var indexRouter = require('./routes/index');
 var municipalRouter = require('./routes/municipals');
 var pvApplicationRouter = require('./routes/pv_applications');
+var fuelApplicationRouter = require('./routes/fuel_applications');
 
 const app = express();
 
@@ -29,7 +30,7 @@ app.use(require('cookie-parser')());
 
 //connect db
 db.sequelize.sync({
-    //force: true
+    // force: true
 }).then(() => {
     console.log('synchroniseModels: Success!');
 }).catch(err => console.log(err));
@@ -38,6 +39,7 @@ db.sequelize.sync({
 app.use(apiPath, indexRouter);
 app.use(apiPath + 'municipals', municipalRouter);
 app.use(apiPath + 'pv_applications', pvApplicationRouter);
+app.use(apiPath + 'fuel_applications', fuelApplicationRouter);
 
 app.listen(process.env.PORT || 3005, () => {
     console.log("Server has started!")
