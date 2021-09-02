@@ -6,6 +6,8 @@
 
     <style>
 
+        @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+
         body {
             font-family: "Arial", sans-serif;
             font-size: 11px;
@@ -15,7 +17,9 @@
 
         h1 {
             font-family: "Arial", sans-serif;
-            font-size: 18px;
+            font-size: 19px;
+            font-weight: 300;
+            margin-bottom: 0.1cm;
         }
 
         h2 {
@@ -31,8 +35,7 @@
         }
 
         p.footer {
-            font-size: 9px;
-
+            font-size: 8px;
         }
 
         p.bold {
@@ -43,12 +46,20 @@
             border: none;
             border-bottom: 1px solid black;
 
+            padding-left: 5px;
+
             background: linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0)), linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0)), linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0));
             background-size: 1px 50%, 100% 1px, 1px 0%;
             background-position: bottom left, bottom center, bottom right;
             background-repeat: no-repeat;
 
             border: none;
+
+            margin-bottom: -3px;
+        }
+
+        label {
+
         }
 
         table td {
@@ -75,217 +86,251 @@
 
         .wrapper {
             position: relative;
-            width: 14cm;
+            width: 12.9cm;
+            margin-left: 0.8cm;
+            margin-right: 0.3cm;
+        }
+
+        .mb-0 {
+            margin-bottom: 0 !important;
+        }
+
+        .mt-0 {
+            margin-top: 0 !important;
         }
 
         #signature-wrapper {
+            margin-top: 1cm;
             width: 100%;
             padding-top: 1cm;
-            margin-left: -1cm;
-            padding-left: 1cm;
+            margin-left: -0.5cm;
+            padding-left: 0.5cm;
             padding-bottom: 0.8cm;
-            margin-right: -1cm;
-            padding-right: 1cm;
+            margin-right: -0.5cm;
+            padding-right: 0.5cm;
             background-color: rgb(245, 246, 246)
         }
+
 
     </style>
 </head>
 <body>
 <div class="wrapper">
-    <!--    <img src="sg_logo.png" style="position: absolute; top: 0; right: 0; height: 18px">-->
 
-    <p>Kanton St. Gallen<br>
-        Baudepartement</p>
-    <p class="bold">Amt für Wasser und Energie</p>
-    <h1>PV-Ersatzabgabe-Rechner: Erklärung</h1>
-    <p>für die Entrichtung einer Ersatzabgabe nach Art.5c des Energiegesetzes.</p>
-    <p style="font-size: 7pt">Neubauten erzeugen einen Teil der von ihnen benötigten Elektrizität selber oder haben
-        einen
-        gewichteten
-        Energiebedarf für Heizung, Warmwasser, Lüftung und Klimatisierung, der um 5kWh je m² beheizte Fläche und Jahr
-        verringert ist. Hauseigentümerinnen und Hauseigentümer, die auf die Eigenstromerzeugung oder die Verringerung
-        des
-        gewichteten
-        Energiebedarfs verzichten, entrichten dem Kanton eine Ersatzabgabe. Die Ersatzabgabe beträgt Fr.2’700.–
-        je kWp der für die Neubaute nach Art.4c Abs.1 der Energieverordnung (sGS 741.11; abgekürzt EnV) zu erstellenden
-        Anlage. Sie wird mit den Baubewilligungsgebühren erhoben. Ausgenommen sind kleinere Erweiterungen bestehender
-        Bauten (siehe Ausnahmen nach Art.4d EnV).</p>
-    <h2>A. Angaben zum Gebäude</h2>
-    <p>Test {{ municipal.name }}</p>
-    <table>
-        <tr>
-            <td>
-                <input type="text" value="{{ municipal.name }}"/>
-                <label>Gemeinde</label>
-            </td>
-            <td>
-                <input type="text" style="visibility: hidden">
-            </td>
-        </tr>
-    </table>
+    <div style="position: absolute; top: 0.2cm; left: 0; width: 100%">
+        <p class="mt-0">Kanton St. Gallen<br>
+            Baudepartement</p>
+        <p class="bold">Amt für Wasser und Energie</p>
 
-    <p class="bold">Bauvorhaben, Objekt</p>
-    <br>
-    <table>
-        <tr>
-            <td>
-                <input type="text" value="{{ application.object_street }}"/>
-                <label>Strasse</label>
-            </td>
-            <td>
-                <input type="text" value="{{ application.object_streetnumber }}"/>
-                <label>Hausnummer</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="text" value="{{ application.object_zip }}"/>
-                <label>PLZ</label>
-            </td>
-            <td>
-                <input type="text" value="{{ application.object_city }}"/>
-                <label>Ort</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="text" value="{{ application.object_plot }}"/>
-                <label>Parzelle</label>
-            </td>
-            <td>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="text" value="{{ application.egid }}"/>
-                <label>Eidg. Gebäudeidentifikator</label>
-            </td>
-            <td>
-                <input type="text" value="{{ application.generator_area }}"/>
-                <label>Energiebezugsfläche in m&sup2;</label>
-            </td>
-        </tr>
-    </table>
-    <br>
-    <p class="bold">Bauherrschaft</p>
+        <img src=" data:image/png;base64,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"
+             style="position: absolute; top: 0; right: 0; height: 50px">
+    </div>
 
-    <table>
-        <tr>
-            <td class="double">
-                <input type="text" value="{{ application.builder_name }}"/>
-                <label>Name, Vorname</label>
-            </td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <td>
-                <input type="text" value="{{ application.builder_street }}"/>
-                <label>Strasse, Nr.</label>
-            </td>
-            <td>
-                <input type="text" value="{{ application.builder_location }}"/>
-                <label>PLZ, Ort</label>
-            </td>
-        </tr>
-    </table>
-
-    <br>
-    <p class="bold">Kontaktperson</p>
-
-    <table>
-        <tr>
-            <td class="double">
-                <input type="text" value="{{ application.contact_name }}"/>
-                <label>Name, Vorname</label>
-            </td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <td>
-                <input type="text" value="{{ application.contact_phone }}"/>
-                <label>Telefon</label>
-            </td>
-            <td>
-                <input type="text" value="{{ application.contact_email }}"/>
-                <label>E-Mail</label>
-            </td>
-        </tr>
-    </table>
-
-    <p style="margin-top: 4cm"><b>
-        Amt für Wasser und Energie AWE
-    </b><br>
-        Lämmlisbrunnenstrasse 54, 9001 St.Gallen, Telefon 058 229 30 99, info.awe@sg.ch<br>
-        Deklaration Ersatzabgabe / 17.5.2021
-    </p>
-
-    <span style="position: absolute; top: 20cm; right: 0">
-    <b>1 / 2</b>
-</span>
-
-    <h2>Berechnung Ersatzabgabe</h2>
-    <p>
-        Die Ersatzabgabe berechnet sich wie folgt:
-    </p>
-    <p>
-    <ul style="padding-left: 1em">
-        <li>Energiebezugsfläche (abgekürzt EBF) kleiner als 3'000m&sup2;:</li>
-        <li style="margin-top: 8pt; list-style: none; text-indent: 2em">Ersatzabgabe (in Fr.) = EBF (in m&sup2;) * 0.01
-            kWp/m&sup2; * 2'700 Franken/kWp
-        </li>
-    </ul>
-    </p>
-    <p>
-    <ul style="padding-left: 1em">
-        <li>Energiebezugsfläche 3'000 m² oder mehr (die Obergrenze gem. Art. 4c Bst. b beträgt 30 kW je Baute und wird
-            mit
-            3'000m² erreicht):
-        </li>
-        <li style="margin-top: 8pt; list-style: none; text-indent: 2em">Ersatzabgabe = 81'000 Franken</li>
-    </ul>
-    </p>
-    <p>
-        Diese Erklärung hält gestützt auf Art.5c Abs.1 EnG i.V.m. Art.4e der EnV, die Höhe der zu entrichtenden
-        Ersatzabgabe
-        fest, welche die Hauseigentümerin oder Hauseigentümer zu entrichten haben.
-    </p>
-    <div style="" id="signature-wrapper">
-        <h2>B. Deklaration Hauseigentümerin oder Hauseigentümer</h2>
-        <p>
-            Die Hauseigentümerin oder der Hauseigentümer der Baute gemäss Bst. A anerkennen und erklären sich bereit
-            eine Ersatzabgabe in der Höhe von <b>{{ fee }}</b> Franken zu entrichten.
-        </p>
-        <table style="margin-top: 2cm">
+    <div style="position: absolute; left: 0; top: 3cm; width: 100%">
+        <h1 style="margin-top: 0">PV-Ersatzabgabe-Rechner: Erklärung</h1>
+        <p style="margin-top: 0">für die Entrichtung einer Ersatzabgabe nach Art.5c des Energiegesetzes.</p>
+        <p style="font-size: 7pt; word-wrap: normal; text-align: justify">Neubauten erzeugen einen Teil der von ihnen
+            benötigten Elektrizität selber oder haben
+            einen
+            gewichteten
+            Energiebedarf für Heizung, Warmwasser, Lüftung und Klimatisierung, der um 5kWh je m² beheizte Fläche und
+            Jahr
+            verringert ist. Hauseigentümerinnen und Hauseigentümer, die auf die Eigenstromerzeugung oder die
+            Verringerung
+            des
+            gewichteten
+            Energiebedarfs verzichten, entrichten dem Kanton eine Ersatzabgabe. Die Ersatzabgabe beträgt Fr.2’700.–
+            je kWp der für die Neubaute nach Art.4c Abs.1 der Energieverordnung (sGS 741.11; abgekürzt EnV) zu
+            erstellenden
+            Anlage. Sie wird mit den Baubewilligungsgebühren erhoben. Ausgenommen sind kleinere Erweiterungen
+            bestehender
+            Bauten (siehe Ausnahmen nach Art.4d EnV).</p>
+        <h2 class="mb-0" style="margin-top: 0.5cm;">A. <span style="margin-left: 12px">Angaben zum Gebäude</span></h2>
+        <table>
             <tr>
                 <td>
-                    <input type="text" style="background-color: rgb(245, 246, 246)">
-                    <label>Ort, Datum</label>
+                    <input type="text" value="{{ municipal.name }}"/>
+                    <label>Gemeinde</label>
                 </td>
                 <td>
-                    <input type="text" style="background-color: rgb(245, 246, 246)">
-                    <label>Unterschriften</label>
+                    <input type="text" style="visibility: hidden">
                 </td>
             </tr>
         </table>
-        <p>
-            <i>Dieses Formular ist der für Bauen und Energie zuständigen Gemeindebehörde einzureichen.</i>
-        </p>
+        <br>
+        <p class="bold mb-0">Bauvorhaben, Objekt</p>
+        <table>
+            <tr>
+                <td>
+                    <input type="text" value="{{ application.object_street }}"/>
+                    <label>Strasse</label>
+                </td>
+                <td>
+                    <input type="text" value="{{ application.object_streetnumber }}"/>
+                    <label>Hausnummer</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" value="{{ application.object_zip }}"/>
+                    <label>PLZ</label>
+                </td>
+                <td>
+                    <input type="text" value="{{ application.object_city }}"/>
+                    <label>Ort</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" value="{{ application.object_plot }}"/>
+                    <label>Parzelle</label>
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" value="{{ application.egid }}"/>
+                    <label>Eidg. Gebäudeidentifikator</label>
+                </td>
+                <td>
+                    <input type="text" value="{{ application.generator_area }}"/>
+                    <label>Energiebezugsfläche in m&sup2;</label>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <p class="bold mb-0">Bauherrschaft</p>
+        <table>
+            <tr>
+                <td class="double">
+                    <input type="text" value="{{ application.builder_name }}"/>
+                    <label>Name, Vorname</label>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td>
+                    <input type="text" value="{{ application.builder_street }}"/>
+                    <label>Strasse, Nr.</label>
+                </td>
+                <td>
+                    <input type="text" value="{{ application.builder_location }}"/>
+                    <label>PLZ, Ort</label>
+                </td>
+            </tr>
+        </table>
 
+        <br>
+        <p class="bold mb-0">Kontaktperson</p>
 
+        <table>
+            <tr>
+                <td class="double">
+                    <input type="text" value="{{ application.contact_name }}"/>
+                    <label>Name, Vorname</label>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td>
+                    <input type="text" value="{{ application.contact_phone }}"/>
+                    <label>Telefon</label>
+                </td>
+                <td>
+                    <input type="text" value="{{ application.contact_email }}"/>
+                    <label>E-Mail</label>
+                </td>
+            </tr>
+        </table>
+
+        <div style="position: absolute; left: 0; top: 18.5cm">
+            <h2 style="">Berechnung Ersatzabgabe</h2>
+            <p>
+                Die Ersatzabgabe berechnet sich wie folgt:
+            </p>
+            <p>
+            <ul style="padding-left: 1em">
+                <li>Energiebezugsfläche (abgekürzt EBF) kleiner als 3'000m&sup2;:</li>
+                <li style="margin-top: 8pt; list-style: none; text-indent: 2em">Ersatzabgabe (in Fr.) = EBF (in m&sup2;)
+                    *
+                    0.01
+                    kWp/m&sup2; * 2'700 Franken/kWp
+                </li>
+            </ul>
+            </p>
+            <p>
+            <ul style="padding-left: 1em">
+                <li>Energiebezugsfläche 3'000 m² oder mehr (die Obergrenze gem. Art. 4c Bst. b beträgt 30 kW je Baute
+                    und
+                    wird
+                    mit
+                    3'000m² erreicht):
+                </li>
+                <li style="margin-top: 8pt; list-style: none; text-indent: 2em">Ersatzabgabe = 81'000 Franken</li>
+            </ul>
+            </p>
+            <p>
+                Diese Erklärung hält gestützt auf Art.5c Abs.1 EnG i.V.m. Art.4e der EnV, die Höhe der zu entrichtenden
+                Ersatzabgabe
+                fest, welche die Hauseigentümerin oder Hauseigentümer zu entrichten haben.
+            </p>
+            <div style="" id="signature-wrapper">
+                <h2>B. <span style="margin-left: 12px">Deklaration Hauseigentümerin oder Hauseigentümer</span></h2>
+                <p>
+                    Die Hauseigentümerin oder der Hauseigentümer der Baute gemäss Bst. A anerkennen und erklären sich
+                    bereit
+                    eine Ersatzabgabe in der Höhe von <b>{{ fee }}</b> Franken zu entrichten.
+                </p>
+                <table style="margin-top: 2.5cm">
+                    <tr>
+                        <td>
+                            <input type="text" style="background-color: rgb(245, 246, 246)">
+                            <label>Ort, Datum</label>
+                        </td>
+                        <td>
+                            <input type="text" style="background-color: rgb(245, 246, 246)">
+                            <label>Unterschriften</label>
+                        </td>
+                    </tr>
+                </table>
+                <p>
+                    <i>&#9658; Dieses Formular ist der für Bauen und Energie zuständigen Gemeindebehörde
+                        einzureichen.</i>
+                </p>
+
+            </div>
+        </div>
     </div>
 
-    <p style="margin-top: 4cm"><b>
-        Amt für Wasser und Energie AWE
-    </b><br>
-        Lämmlisbrunnenstrasse 54, 9001 St.Gallen, Telefon 058 229 30 99, info.awe@sg.ch<br>
-        Deklaration Ersatzabgabe / 17.5.2021
-    </p>
-    <span style="position: absolute; top: 41cm; right: 0">
-        <b>2 / 2</b>
-        </span>
+    <div style="position: absolute; top: 19.5cm; left: 0; width: 100%">
+        <p class="footer"><b>
+            Amt für Wasser und Energie AWE
+        </b><br>
+            Lämmlisbrunnenstrasse 54, 9001 St.Gallen, Telefon 058 229 30 99, info.awe@sg.ch<br>
+            Deklaration Ersatzabgabe / 17.5.2021
+        </p>
+
+        <div style="position: absolute; bottom: 0; right: 0; font-size: 8px">
+            <b>1 / 2</b>
+        </div>
+    </div>
+
+    <div style="position: absolute; top: 40.3cm; left: 0; width: 100%">
+        <p class="footer"><b>
+            Amt für Wasser und Energie AWE
+        </b><br>
+            Lämmlisbrunnenstrasse 54, 9001 St.Gallen, Telefon 058 229 30 99, info.awe@sg.ch<br>
+            Deklaration Ersatzabgabe / 17.5.2021
+        </p>
+
+        <div style="position: absolute; bottom: 0; right: 0; font-size: 8px">
+            <b>2 / 2</b>
+        </div>
+    </div>
+
 
 </div>
 </body>
