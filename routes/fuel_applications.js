@@ -117,8 +117,7 @@ router.get('/pdf/:identifier', async (req, res) => {
         html: html,
         data: {
             application: fuelApplication.dataValues,
-            municipal: municipal.dataValues,
-            fee: getPVFee(fuelApplication.dataValues.generator_area)
+            municipal: municipal.dataValues
         },
         path: "pdf/temp.pdf",
         type: "stream",
@@ -129,7 +128,6 @@ router.get('/pdf/:identifier', async (req, res) => {
         .then((doc) => {
             res.download(doc.path)
             //res.send("ok")
-            console.log(doc);
         })
         .catch((error) => {
             res.send(error)
@@ -138,9 +136,5 @@ router.get('/pdf/:identifier', async (req, res) => {
 
 })
 
-
-function numberWithDelimiter(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-}
 
 module.exports = router;
