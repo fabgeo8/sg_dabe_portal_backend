@@ -100,7 +100,6 @@ router.get('/pdf/:identifier', async (req, res) => {
         border: "8.8mm",
     };
 
-
     let pvApplication = await models.PvApplication.findOne({ where : { pdf_identifier: req.params.identifier }})
 
     if (!pvApplication) {
@@ -134,31 +133,12 @@ router.get('/pdf/:identifier', async (req, res) => {
 
 })
 
-// router.get('/:id/pdf3', async (req, res) => {
-//     var fs = require('fs')
-//
-//     let html = fs.readFileSync('templates/pv_application.html', 'utf8');
-//
-//
-//     var conversion = require("phantom-html-to-pdf")();
-//     conversion({ html: "<h1>Hello World</h1>" }, function(err, pdf) {
-//         var output = fs.createWriteStream('/path/to/output.pdf')
-//         console.log(pdf.logs);
-//         console.log(pdf.numberOfPages);
-//         // since pdf.stream is a node.js stream you can use it
-//         // to save the pdf to a file (like in this example) or to
-//         // respond an http request.
-//         pdf.stream.pipe(output);
-//     });
-//
-// })
-
 function getPVFee(area) {
     let fee = 0;
     if (area >= 3000) {
         fee = 81000
     }else {
-        fee = area * 0.01 * 2700
+        fee = (area / 100 * 2700).toFixed()
     }
     return numberWithDelimiter(fee)
 }
