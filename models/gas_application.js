@@ -1,11 +1,23 @@
 module.exports = (sequelize, Sequelize) => {
 
-    const FuelApplication = sequelize.define("FuelApplication", {
+    const GasApplication = sequelize.define("GasApplication", {
+        id: {
+            type: Sequelize.UUID,
+            defaultValue: Sequelize.UUIDV4,
+            allowNull: false,
+            primaryKey: true
+        },
         identifier: {
             type: Sequelize.STRING
         },
-        municipal: {
-            type: Sequelize.STRING
+        application_type: {
+            type: Sequelize.INTEGER
+        },
+        status: {
+            type: Sequelize.INTEGER
+        },
+        version: {
+            type: Sequelize.INTEGER
         },
         egid: {
             type: Sequelize.STRING
@@ -37,25 +49,10 @@ module.exports = (sequelize, Sequelize) => {
         fuel_type: {
             type: Sequelize.STRING
         },
-        contact_name: {
-            type: Sequelize.STRING
-        },
-        contact_phone: {
-            type: Sequelize.STRING
-        },
-        contact_email: {
-            type: Sequelize.STRING
-        },
-        builder_name: {
-            type: Sequelize.STRING
-        },
-        builder_street: {
-            type: Sequelize.STRING
-        },
-        builder_location: {
-            type: Sequelize.STRING
-        },
+        fee: {
+            type: Sequelize.FLOAT
+        }
     });
 
-    return FuelApplication;
+    return GasApplication;
 };

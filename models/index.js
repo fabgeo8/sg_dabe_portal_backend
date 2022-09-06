@@ -20,9 +20,15 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 
-db.FuelApplication = require("./fuel_application")(sequelize, Sequelize);
+db.GasApplication = require("./gas_application")(sequelize, Sequelize);
 db.PvApplication = require("./pv_application")(sequelize, Sequelize);
-db.Muncipal = require("./municipals")(sequelize, Sequelize);
+db.Municipality = require("./municipalities")(sequelize, Sequelize);
+
+db.GasApplication.belongsTo(db.Municipality);
+db.Municipality.hasOne(db.GasApplication);
+
+db.PvApplication.belongsTo(db.Municipality);
+db.Municipality.hasOne(db.PvApplication);
 
 /* define relations
 db.Event.hasMany(db.EventWindow);

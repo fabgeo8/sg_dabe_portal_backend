@@ -1,16 +1,25 @@
 module.exports = (sequelize, Sequelize) => {
 
     const PvApplication = sequelize.define("PvApplication", {
+        id: {
+            type: Sequelize.UUID,
+            defaultValue: Sequelize.UUIDV4,
+            allowNull: false,
+            primaryKey: true
+        },
         identifier: {
             type: Sequelize.STRING
             //unique
             //DATE_EGID/PLOT_VERSION
             //20210713_123451_1
         },
-        version: {
+        status: {
             type: Sequelize.INTEGER
         },
-        municipal: {
+        application_type: {
+            type: Sequelize.INTEGER
+        },
+        version: {
             type: Sequelize.INTEGER
         },
         egid: {
@@ -32,16 +41,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         generator_area: {
-            type: Sequelize.STRING
-        },
-        contact_name: {
-            type: Sequelize.STRING
-        },
-        contact_phone: {
-            type: Sequelize.STRING
-        },
-        contact_email: {
-            type: Sequelize.STRING
+            type: Sequelize.FLOAT
         },
         builder_street: {
             type: Sequelize.STRING

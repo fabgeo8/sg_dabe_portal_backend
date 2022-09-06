@@ -5,7 +5,7 @@ const { Op } = require("sequelize");
 
 router.get('/', async (req, res) => {
     try {
-        let municipals = await models.Muncipal.findAll({
+        let municipals = await models.Municipality.findAll({
             attributes: ['id', 'name'],
             order: ['name']
         })

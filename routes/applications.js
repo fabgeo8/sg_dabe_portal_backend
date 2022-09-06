@@ -3,30 +3,52 @@ const router = express.Router();
 const models = require('../models')
 const { Op } = require("sequelize");
 
-router.get('/', async (req, res) => {
+router.get('/gas', async (req, res) => {
     try {
+
+        let gasApplications = await models.GasApplication.findAll({
+            order: ['createdAt'],
+            include: [
+            {
+                model: models.Municipality,
+                attributes: ['name']
+            }
+        ]
+        })
+
+        res.json(gasApplications)
+    } catch (ex) {
+        res.status(404).send({error: "application list could not be retrieved", message: ex.message})
+    }
+})
+
+router.get('/gas/:id', async (req, res) => {
+    try {
+
+        let gasApplication = await models.GasApplication.findByPk(req.params.id, {
+            include: [
+                {
+                    model: models.Municipality,
+                    attributes: ['name']
+                }
+            ]
+        })
+
+        res.json(gasApplication)
+    } catch (ex) {
+        res.status(404).send({error: "gas application could not be retrieved", message: ex.message})
+    }
+})
+
+router.get('/pv', async (req, res) => {
+    try {
+
         let pvApplications = await models.PvApplication.findAll({
             order: ['createdAt'],
             raw: true
         })
 
-        let gasApplications = await models.FuelApplication.findAll({
-            order: ['createdAt'],
-            raw: true
-        })
-
-        let result = pvApplications.concat(gasApplications)
-
-        result.forEach(application => {
-            if ('boiler_replacement_year' in application) {
-                application.type = 'gas'
-            } else {
-                application.type = 'pv'
-            }
-            application.status = 0
-        })
-
-        res.json(result)
+        res.json(pvApplications)
     } catch (ex) {
         res.status(404).send({error: "application list could not be retrieved", message: ex.message})
     }
