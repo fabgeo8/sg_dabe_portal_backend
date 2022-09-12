@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const models = require('../models')
-const { Op } = require("sequelize");
+const {Op} = require("sequelize");
+const Status = require("../utils/status");
 
 router.get('/gas', async (req, res) => {
     try {
@@ -9,11 +10,11 @@ router.get('/gas', async (req, res) => {
         let gasApplications = await models.GasApplication.findAll({
             order: ['createdAt'],
             include: [
-            {
-                model: models.Municipality,
-                attributes: ['name']
-            }
-        ]
+                {
+                    model: models.Municipality,
+                    attributes: ['name']
+                }],
+            attributes: ['id', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'object_plot', 'generator_area', 'fee', 'boiler_replacement_year', 'year_of_construction', 'status', 'remark']
         })
 
         res.json(gasApplications)
@@ -37,6 +38,60 @@ router.get('/gas/:id', async (req, res) => {
         res.json(gasApplication)
     } catch (ex) {
         res.status(404).send({error: "gas application could not be retrieved", message: ex.message})
+    }
+})
+
+router.patch('/gas/:id', async (req, res) => {
+    try {
+        let gasApplication = await models.GasApplication.findByPk(req.params.id)
+
+        if (req.body.object_egid || req.body.object_egid === '') {
+            gasApplication.object_egid = req.body.object_egid
+        }
+
+        if (req.body.object_street || req.body.object_street === '') {
+            gasApplication.object_street = req.body.object_street
+        }
+
+        if (req.body.object_streetnumber || req.body.object_streetnumber === '') {
+            gasApplication.object_streetnumber = req.body.object_streetnumber
+        }
+
+        if (req.body.object_city || req.body.object_city === '') {
+            gasApplication.object_city = req.body.object_city
+        }
+
+        if (req.body.object_zip || req.body.object_zip === '') {
+            gasApplication.object_zip = req.body.object_zip
+        }
+
+        // todo: add remark to model and db
+        /* if (req.body.remark || req.body.remark === '') {
+            gasApplication.remark = req.body.remark
+        } */
+
+        // todo: check if request is authorized to change municipality
+        // todo: check if municipality exists, so reference is always given
+        if (req.body.municipality) {
+            gasApplication.MunicipalityId = req.body.municipality
+        }
+
+        if (req.body.status) {
+            // only allow possible status
+            if (Object.values(Status).includes(req.body.status)) {
+                gasApplication.status = req.body.status
+            }
+        }
+
+        if (req.body.remark || req.body.remark === '') {
+            gasApplication.remark = req.body.remark
+        }
+
+        await gasApplication.save()
+
+        res.status(200).send("Application updated")
+    } catch (ex) {
+        res.status(404).send({error: "Application could not be updated", message: ex.message})
     }
 })
 

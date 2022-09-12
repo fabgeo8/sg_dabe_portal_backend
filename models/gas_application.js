@@ -19,7 +19,7 @@ module.exports = (sequelize, Sequelize) => {
         version: {
             type: Sequelize.INTEGER
         },
-        egid: {
+        object_egid: {
             type: Sequelize.STRING
         },
         object_street: {
@@ -51,6 +51,9 @@ module.exports = (sequelize, Sequelize) => {
         },
         fee: {
             type: Sequelize.FLOAT
+        },
+        remark: {
+            type: Sequelize.TEXT
         }
     });
 
