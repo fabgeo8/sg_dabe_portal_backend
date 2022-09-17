@@ -54,6 +54,12 @@ module.exports = (sequelize, Sequelize) => {
         },
         remark: {
             type: Sequelize.TEXT
+        },
+        address: {
+            type: Sequelize.VIRTUAL,
+            get(){
+                return `${this.object_street} ${this.object_streetnumber}, ${this.object_zip} ${this.object_city}`
+            }
         }
     });
 

@@ -7,14 +7,35 @@ const Status = require("../utils/status");
 router.get('/gas', async (req, res) => {
     try {
 
+        let queryFilter = {}
+        let queryParams = req.query
+        if (queryParams.municipality && queryParams.municipality !== 'undefined' && queryParams.municipality !== 'null' && queryParams.municipality !== '0') {
+            // todo: check if user is allowed to query this municipality
+            queryFilter.MunicipalityId = queryParams.municipality
+        }
+
+        if (queryParams.dateFrom && queryParams.dateFrom !== 'undefined' && queryParams.dateFrom !== 'null' &&
+            queryParams.dateTo && queryParams.dateTo !== 'undefined' && queryParams.dateTo !== 'null'){
+            // todo: check if user is allowed to query this municipality
+            let dateFrom = new Date(queryParams.dateFrom)
+            let dateTo = new Date(queryParams.dateTo)
+            dateTo = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate(), 23, 59, 59)
+
+            queryFilter.createdAt = {
+                [Op.gte]: dateFrom,
+                [Op.lte]: dateTo,
+            }
+        }
+
         let gasApplications = await models.GasApplication.findAll({
             order: ['createdAt'],
+            where: queryFilter,
             include: [
                 {
                     model: models.Municipality,
                     attributes: ['name']
                 }],
-            attributes: ['id', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'object_plot', 'generator_area', 'fee', 'boiler_replacement_year', 'year_of_construction', 'status', 'remark']
+            attributes: ['id', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'address', 'object_plot', 'generator_area', 'fee', 'boiler_replacement_year', 'year_of_construction', 'status', 'remark']
         })
 
         res.json(gasApplications)
@@ -27,6 +48,24 @@ router.get('/gas/:id', async (req, res) => {
     try {
 
         let gasApplication = await models.GasApplication.findByPk(req.params.id, {
+            include: [
+                {
+                    model: models.Municipality,
+                    attributes: ['name']
+                }
+            ]
+        })
+
+        res.json(gasApplication)
+    } catch (ex) {
+        res.status(404).send({error: "gas application could not be retrieved", message: ex.message})
+    }
+})
+
+router.get('/gas/by_identifier/:id', async (req, res) => {
+    try {
+
+        let gasApplication = await models.GasApplication.findOne({where: {identifier: req.params.id}}, {
             include: [
                 {
                     model: models.Municipality,
@@ -66,9 +105,9 @@ router.patch('/gas/:id', async (req, res) => {
         }
 
         // todo: add remark to model and db
-        /* if (req.body.remark || req.body.remark === '') {
+        if (req.body.remark || req.body.remark === '') {
             gasApplication.remark = req.body.remark
-        } */
+        }
 
         // todo: check if request is authorized to change municipality
         // todo: check if municipality exists, so reference is always given
