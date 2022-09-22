@@ -28,7 +28,7 @@ router.get('/gas', async (req, res) => {
         }
 
         let gasApplications = await models.GasApplication.findAll({
-            order: ['createdAt'],
+            order: ['createdAt', 'DESC'],
             where: queryFilter,
             include: [
                 {
