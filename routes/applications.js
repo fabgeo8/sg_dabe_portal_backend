@@ -33,7 +33,8 @@ router.get('/gas', async (req, res) => {
             include: [
                 {
                     model: models.Municipality,
-                    attributes: ['name']
+                    attributes: ['name'],
+                    required: true
                 }],
             attributes: ['id', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'fuel_type', 'address', 'object_plot', 'generator_area', 'fee', 'boiler_replacement_year', 'year_of_construction', 'status', 'remark']
         })
@@ -51,7 +52,8 @@ router.get('/gas/:id', async (req, res) => {
             include: [
                 {
                     model: models.Municipality,
-                    attributes: ['name']
+                    attributes: ['name'],
+                    required: true
                 }
             ]
         })
@@ -69,7 +71,8 @@ router.get('/gas/by_identifier/:id', async (req, res) => {
             include: [
                 {
                     model: models.Municipality,
-                    attributes: ['name']
+                    attributes: ['name'],
+                    required: true
                 }
             ]
         })
