@@ -4,12 +4,14 @@ const path = require('path');
 const bodyParser = require("body-parser");
 require('dotenv').config();
 const db = require("./models");
+const cookieParser = require('cookie-parser');
 
 const apiPath = '/api/v1/';
 
 var indexRouter = require('./routes/index');
 var municipalityRouter = require('./routes/municipals');
 var applicationRouter = require('./routes/applications');
+var authRouter = require('./routes/AuthRoutes');
 const {application} = require("express");
 
 const app = express();
@@ -39,6 +41,7 @@ db.sequelize.sync({
 app.use(apiPath, indexRouter);
 app.use(apiPath + 'municipalities', municipalityRouter);
 app.use(apiPath + 'applications', applicationRouter);
+app.use(apiPath + 'auth', authRouter);
 
 app.listen(process.env.PORT || 3005, () => {
     console.log("Server has started!")

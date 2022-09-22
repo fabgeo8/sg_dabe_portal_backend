@@ -6,11 +6,11 @@ const Status = require("../utils/status");
 
 router.get('/gas', async (req, res) => {
     try {
-
         let queryFilter = {}
         let queryParams = req.query
         if (queryParams.municipality && queryParams.municipality !== 'undefined' && queryParams.municipality !== 'null' && queryParams.municipality !== '0') {
             // todo: check if user is allowed to query this municipality
+            // todo check if user is admin or municipality user, if municipality user automatically always use municipality filter
             queryFilter.MunicipalityId = queryParams.municipality
         }
 
