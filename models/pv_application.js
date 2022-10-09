@@ -8,15 +8,12 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         identifier: {
-            type: Sequelize.STRING
-            //unique
+            type: Sequelize.STRING,
+            unique: true
             //DATE_EGID/PLOT_VERSION
             //20210713_123451_1
         },
         status: {
-            type: Sequelize.INTEGER
-        },
-        application_type: {
             type: Sequelize.INTEGER
         },
         version: {
@@ -43,21 +40,21 @@ module.exports = (sequelize, Sequelize) => {
         generator_area: {
             type: Sequelize.FLOAT
         },
-        builder_street: {
-            type: Sequelize.STRING
-        },
-        builder_location: {
-            type: Sequelize.STRING
-        },
-        builder_name: {
-            type: Sequelize.STRING
-        },
         fee: {
             type: Sequelize.FLOAT
         },
         remark: {
-        type: Sequelize.TEXT
-    }
+            type: Sequelize.TEXT
+        },
+        pdf_identifier: {
+            type: Sequelize.STRING
+        },
+        address: {
+            type: Sequelize.VIRTUAL,
+            get(){
+                return `${this.object_street} ${this.object_streetnumber}, ${this.object_zip} ${this.object_city}`
+            }
+        }
     });
 
     return PvApplication;

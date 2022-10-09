@@ -8,10 +8,8 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         identifier: {
-            type: Sequelize.STRING
-        },
-        application_type: {
-            type: Sequelize.INTEGER
+            type: Sequelize.STRING,
+            unique: true
         },
         status: {
             type: Sequelize.INTEGER
@@ -49,11 +47,11 @@ module.exports = (sequelize, Sequelize) => {
         fuel_type: {
             type: Sequelize.STRING
         },
-        fee: {
-            type: Sequelize.FLOAT
-        },
         remark: {
             type: Sequelize.TEXT
+        },
+        pdf_identifier: {
+            type: Sequelize.STRING
         },
         address: {
             type: Sequelize.VIRTUAL,

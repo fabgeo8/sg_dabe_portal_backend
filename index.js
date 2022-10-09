@@ -10,7 +10,8 @@ const apiPath = '/api/v1/';
 
 var indexRouter = require('./routes/index');
 var municipalityRouter = require('./routes/municipals');
-var applicationRouter = require('./routes/applications');
+var gasApplicationRouter = require('./routes/gasApplications');
+var pvApplicationRouter = require('./routes/pvApplications');
 var authRouter = require('./routes/AuthRoutes');
 const {application} = require("express");
 
@@ -40,7 +41,8 @@ db.sequelize.sync({
 //include routes
 app.use(apiPath, indexRouter);
 app.use(apiPath + 'municipalities', municipalityRouter);
-app.use(apiPath + 'applications', applicationRouter);
+app.use(apiPath + 'applications/gas', gasApplicationRouter);
+app.use(apiPath + 'applications/pv', pvApplicationRouter);
 app.use(apiPath + 'auth', authRouter);
 
 app.listen(process.env.PORT || 3005, () => {
