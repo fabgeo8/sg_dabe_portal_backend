@@ -10,8 +10,6 @@ module.exports = (sequelize, Sequelize) => {
         identifier: {
             type: Sequelize.STRING,
             unique: true
-            //DATE_EGID/PLOT_VERSION
-            //20210713_123451_1
         },
         status: {
             type: Sequelize.INTEGER
@@ -46,8 +44,22 @@ module.exports = (sequelize, Sequelize) => {
         remark: {
             type: Sequelize.TEXT
         },
-        pdf_identifier: {
-            type: Sequelize.STRING
+        last_status_date: {
+            type: Sequelize.DATEONLY,
+            defaultValue: Sequelize.NOW
+        },
+        status_changed_dates: {
+            type: Sequelize.TEXT,
+            get () {
+                if (this.getDataValue('status_changed_dates') == null) {
+                    return {}
+                } else {
+                    return JSON.parse(this.getDataValue('status_changed_dates'));
+                }
+            },
+            set (value) {
+                this.setDataValue('status_changed_dates', JSON.stringify(value));
+            }
         },
         address: {
             type: Sequelize.VIRTUAL,

@@ -30,19 +30,4 @@ db.Municipality.hasOne(db.GasApplication);
 db.PvApplication.belongsTo(db.Municipality);
 db.Municipality.hasOne(db.PvApplication);
 
-/* define relations
-db.Event.hasMany(db.EventWindow);
-db.EventWindow.belongsTo(db.Event)
-
-db.Event.belongsTo(db.EventLocation);
-db.EventLocation.hasMany(db.Event);
-
-db.EventLocation.belongsTo(db.Operator);
-db.Operator.hasMany(db.EventLocation)
-
-db.Operator.hasMany(db.User);
-db.User.belongsTo(db.Operator)
-*/
-
-
 module.exports = db;
