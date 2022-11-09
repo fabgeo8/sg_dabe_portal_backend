@@ -4,15 +4,17 @@ const path = require('path');
 const bodyParser = require("body-parser");
 require('dotenv').config();
 const db = require("./models");
-const cookieParser = require('cookie-parser');
+const jwtCheck = require('./services/jwtCheck');
 
 const apiPath = '/api/v1/';
 
-var indexRouter = require('./routes/index');
-var municipalityRouter = require('./routes/municipals');
-var gasApplicationRouter = require('./routes/gasApplications');
-var pvApplicationRouter = require('./routes/pvApplications');
-var authRouter = require('./routes/AuthRoutes');
+const indexRouter = require('./routes/index');
+const municipalityRouter = require('./routes/municipals');
+const gasApplicationRouter = require('./routes/gasApplications');
+const pvApplicationRouter = require('./routes/pvApplications');
+const authRouter = require('./routes/AuthRoutes');
+const userRouter = require('./routes/users');
+
 const {application} = require("express");
 
 const app = express();
@@ -43,13 +45,20 @@ app.use(apiPath, indexRouter);
 app.use(apiPath + 'municipalities', municipalityRouter);
 app.use(apiPath + 'applications/gas', gasApplicationRouter);
 app.use(apiPath + 'applications/pv', pvApplicationRouter);
+app.use(apiPath + 'users', userRouter);
+
+app.use(jwtCheck);
 app.use(apiPath + 'auth', authRouter);
+
+// catch error request
+app.use(function(err, req, res, next) {
+    if (err.status) {
+        res.status(err.status).json({message: err.message})
+    } else {
+        res.status(500).json({message: "unhandled server error"})
+    }
+});
 
 app.listen(process.env.PORT || 3005, () => {
     console.log("Server has started!")
 })
-
-function validPassword(password, hash, salt) {
-    var hashVerify = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-    return hash === hashVerify;
-}

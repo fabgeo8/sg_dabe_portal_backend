@@ -1,0 +1,7 @@
+module.exports = {
+    SITEADMIN: 49,
+    CANTON_ADMIN: 41,
+    CANTON_USER: 42,
+    MUNICIPALITY_ADMIN: 31,
+    MUNICIPALITY_USER: 32
+}
