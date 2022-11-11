@@ -50,22 +50,35 @@ router.get('/unauthorized', async (req, res) => {
 })
 
 /*
- * User routes for municipality access
+ * get users that are not assigned to a municipality or canton
  */
-router.get('/:municipalityId', async (req, res) => {
+router.get('/me', async (req, res) => {
     try {
         let users = await models.User.findAll({
             order: [['createdAt', 'DESC']],
-            where: {
-                MunicipalityId: req.params.municipalityId,
-                is_authorized: true
-            },
+            where: {is_authorized: false},
             attributes: accessableUserAttributes
         })
 
         res.json(users)
     } catch (ex) {
         res.status(404).send({error: "user list could not be retrieved", message: ex.message})
+    }
+})
+
+/*
+ * User routes for municipality access
+ */
+router.get('/me', async (req, res) => {
+    try {
+        let user = await models.User.findByPk(req.params.userId,
+            {
+                attributes: ["fullname", "email", "is_authorized", "MunicipaliyId"]
+            })
+
+        res.json(user)
+    } catch (ex) {
+        res.status(404).send({error: "user could not be retrieved", message: ex.message})
     }
 })
 
