@@ -9,8 +9,6 @@ module.exports = {
      */
     async checkUserAuthorization(req, res, next) {
         try {
-
-
             let oidc_userid = req.auth.sub
 
             let user = await models.User.findOne({ where: {oidc_userid: oidc_userid}})
@@ -35,8 +33,6 @@ module.exports = {
                 err.status = 401;
                 return next(err)
             }
-
-
         } catch (e) {
             let err = new Error('authentication_error');
             err.status = 401;
