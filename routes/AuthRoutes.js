@@ -7,10 +7,8 @@ const fs = require('fs')
 const auth = require('../services/auth');
 const permissions = require('../services/permissions')
 
-router.get('/gas', auth.checkUserAuthorization, async (req, res) => {
+router.get('/gas', async (req, res) => {
     try {
-
-
         let gasApplications = await models.GasApplication.findAll({
             order: ['createdAt'],
             include: [
