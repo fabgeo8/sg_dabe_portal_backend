@@ -54,11 +54,13 @@ router.get('/unauthorized', async (req, res) => {
  */
 router.get('/me', async (req, res) => {
     try {
-        let user = await models.User.findByPk(req.params.userId,
-            {
-                attributes: ["fullname", "email", "is_authorized", "MunicipaliyId", "role_name"]
-            })
-
+        let user = {
+            fullname: req.user.fullname,
+            email: req.user.email,
+            is_authorized: req.user.is_authorized,
+            MunicipalityId: req.user.MunicipalityId,
+            role_name: req.user.role_name
+        }
         res.json(user)
     } catch (ex) {
         res.status(404).send({error: "user could not be retrieved", message: ex.message})
