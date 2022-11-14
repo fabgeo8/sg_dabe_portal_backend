@@ -73,19 +73,6 @@ router.get('/stats', async (req, res) => {
             permissions.checkCantonPermission(req.user)
         }
 
-        if (queryParams.dateFrom && queryParams.dateFrom !== 'undefined' && queryParams.dateFrom !== 'null' &&
-            queryParams.dateTo && queryParams.dateTo !== 'undefined' && queryParams.dateTo !== 'null'){
-            // todo: check if user is allowed to query this municipality
-            let dateFrom = new Date(queryParams.dateFrom)
-            let dateTo = new Date(queryParams.dateTo)
-            dateTo = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate(), 23, 59, 59)
-
-            queryFilter.last_status_date = {
-                [Op.gte]: dateFrom,
-                [Op.lte]: dateTo,
-            }
-        }
-
         let result = {
             open: {
                 count: 0,
@@ -114,6 +101,19 @@ router.get('/stats', async (req, res) => {
                 }
             ]
         })
+
+        if (queryParams.dateFrom && queryParams.dateFrom !== 'undefined' && queryParams.dateFrom !== 'null' &&
+            queryParams.dateTo && queryParams.dateTo !== 'undefined' && queryParams.dateTo !== 'null'){
+            // todo: check if user is allowed to query this municipality
+            let dateFrom = new Date(queryParams.dateFrom)
+            let dateTo = new Date(queryParams.dateTo)
+            dateTo = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate(), 23, 59, 59)
+
+            queryFilter.last_status_date = {
+                [Op.gte]: dateFrom,
+                [Op.lte]: dateTo,
+            }
+        }
 
         queryFilter.status = Status.GRANTED
         let grantedApplications = await models.PvApplication.findAll({where: queryFilter}, {
