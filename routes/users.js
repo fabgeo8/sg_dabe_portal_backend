@@ -4,6 +4,7 @@ const models = require('../models')
 const {Op} = require("sequelize");
 const Status = require("../utils/status");
 const Roles = require("../utils/roles");
+const permissions = require("../services/permissions")
 
 const cantonLocation = 'canton';
 
@@ -14,6 +15,8 @@ const accessableUserAttributes = ['fullname', 'id', 'email', 'createdAt', 'role'
  */
 router.get('/canton', async (req, res) => {
     try {
+        permissions.checkAllUserPermission(req.user)
+
         let users = await models.User.findAll({
             order: [['createdAt', 'DESC']],
             where: {
@@ -37,6 +40,8 @@ router.get('/canton', async (req, res) => {
  */
 router.get('/unauthorized', async (req, res) => {
     try {
+        permissions.checkUnconfiguredUserPermission()
+
         let users = await models.User.findAll({
             order: [['createdAt', 'DESC']],
             where: {is_authorized: false},
@@ -54,6 +59,7 @@ router.get('/unauthorized', async (req, res) => {
  */
 router.get('/me', async (req, res) => {
     try {
+
         let user = {
             fullname: req.user.fullname,
             email: req.user.email,
@@ -72,6 +78,9 @@ router.get('/me', async (req, res) => {
  */
 router.get('/:municipalityId', async (req, res) => {
     try {
+
+        permissions.checkUserMunicipalityPermission(req.user, req.params.municipalityId)
+
         let users = await models.User.findAll({
             order: [['createdAt', 'DESC']],
             where: {
@@ -91,10 +100,13 @@ router.patch('/:userId/set_authorized', async (req, res) => {
     try {
         let user = await models.User.findByPk(req.params.userId)
 
+
+
         if (req.body.userLocation) {
             // user location is either municipalityid for municipality users or 'canton' for canton users
             if (req.body.userLocation === cantonLocation) {
                 // user is being set active as canton user, check permissions
+                permissions.checkAllUserPermission(req.user)
                 user.role = Roles.CANTON_USER
                 user.is_authorized = true
                 user.MunicipalityId = null
@@ -102,6 +114,7 @@ router.patch('/:userId/set_authorized', async (req, res) => {
                 // check if municipality exists and user has permission
                 let municipality = await models.Municipality.findByPk(req.body.userLocation)
                 // check permission
+                permissions.checkUserMunicipalityPermission(req.user, municipality.id)
 
                 user.MunicipalityId = municipality.id
                 user.role = Roles.MUNICIPALITY_USER
@@ -120,6 +133,12 @@ router.patch('/:userId/set_authorized', async (req, res) => {
 router.patch('/:userId/set_unauthorized', async (req, res) => {
     try {
         let user = await models.User.findByPk(req.params.userId)
+
+        if (user.MunicipalityId && user.MunicipalityId !== '') {
+            permissions.checkUserMunicipalityPermission(req.user, user.MunicipalityId)
+        } else {
+            permissions.checkAllUserPermission(req.user)
+        }
 
         // check permissions to deactivate this user based on its role and municipality
         user.role = null
@@ -148,6 +167,7 @@ router.patch('/:userId', async (req, res) => {
 
             // check if user is municipality user or not
             if (user.MunicipalityId === null && [Roles.CANTON_USER, Roles.CANTON_ADMIN].includes(user.role)) {
+                permissions.checkAllUserPermission(req.user)
                 // user is canton user
                 if (requestedRole === 'admin') {
                     user.role = Roles.CANTON_ADMIN
@@ -156,6 +176,7 @@ router.patch('/:userId', async (req, res) => {
                 }
             }
             else {
+                permissions.checkUserMunicipalityPermission(req.user, user.MunicipalityId)
                 // user is municipality user
                 if (requestedRole === 'admin') {
                     user.role = Roles.MUNICIPALITY_ADMIN

@@ -8,6 +8,13 @@ module.exports = {
      *
      * method will throw unauthorized error if user is not allow to access municipality
      */
+    checkCantonPermission (user) {
+        if (canAccessAllMunicipalites(user)){
+            return
+        }
+
+        throw unauthorizedError()
+    },
     checkMunicipalityPermission (user, municipality) {
         if (user.MunicipalityId === municipality) {
             return

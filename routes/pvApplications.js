@@ -3,6 +3,7 @@ const router = express.Router();
 const models = require('../models')
 const {Op} = require("sequelize");
 const Status = require("../utils/status");
+const permissions = require("../services/permissions");
 
 router.get('/', async (req, res) => {
     try {
@@ -12,6 +13,14 @@ router.get('/', async (req, res) => {
             // todo: check if user is allowed to query this municipality
             // todo check if user is admin or municipality user, if municipality user automatically always use municipality filter
             queryFilter.MunicipalityId = queryParams.municipality
+        }
+
+        let municipality = await models.Municipality.findByPk(queryFilter.MunicipalityId)
+        if (municipality) {
+            // if user requests municipality check if municipality exists and check permissions, otherwise check all permissions
+            permissions.checkMunicipalityPermission(req.user, municipality.id )
+        } else {
+            permissions.checkCantonPermission(req.user)
         }
 
         if (queryParams.dateFrom && queryParams.dateFrom !== 'undefined' && queryParams.dateFrom !== 'null' &&
@@ -50,10 +59,18 @@ router.get('/stats', async (req, res) => {
 
         let queryFilter = {}
         let queryParams = req.query
+
+
         if (queryParams.municipality && queryParams.municipality !== 'undefined' && queryParams.municipality !== 'null' && queryParams.municipality !== '0') {
-            // todo: check if user is allowed to query this municipality
-            // todo check if user is admin or municipality user, if municipality user automatically always use municipality filter
             queryFilter.MunicipalityId = queryParams.municipality
+        }
+
+        let municipality = await models.Municipality.findByPk(queryFilter.MunicipalityId)
+        if (municipality) {
+            // if user requests municipality check if municipality exists and check permissions, otherwise check all permissions
+            permissions.checkMunicipalityPermission(req.user, municipality.id )
+        } else {
+            permissions.checkCantonPermission(req.user)
         }
 
         if (queryParams.dateFrom && queryParams.dateFrom !== 'undefined' && queryParams.dateFrom !== 'null' &&
@@ -157,6 +174,9 @@ router.get('/:id', async (req, res) => {
             ]
         })
 
+        permissions.checkMunicipalityPermission(req.user, pvApplication.MunicipalityId )
+
+
         res.json(pvApplication)
     } catch (ex) {
         res.status(404).send({error: "pv application could not be retrieved", message: ex.message})
@@ -176,6 +196,8 @@ router.get('/by_identifier/:id', async (req, res) => {
             ]
         })
 
+        permissions.checkMunicipalityPermission(req.user, pvApplication.MunicipalityId )
+
         res.json(pvApplication)
     } catch (ex) {
         res.status(404).send({error: "pv application could not be retrieved", message: ex.message})
@@ -185,6 +207,8 @@ router.get('/by_identifier/:id', async (req, res) => {
 router.patch('/:id', async (req, res) => {
     try {
         let pvApplication = await models.PvApplication.findByPk(req.params.id)
+
+        permissions.checkMunicipalityPermission(req.user, pvApplication.MunicipalityId )
 
         if (req.body.object_egid || req.body.object_egid === '') {
             pvApplication.object_egid = req.body.object_egid
@@ -241,6 +265,8 @@ router.patch('/:id', async (req, res) => {
         res.status(404).send({error: "Application could not be updated", message: ex.message})
     }
 })
+
+
 
 
 module.exports = router;
