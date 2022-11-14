@@ -40,7 +40,7 @@ router.get('/canton', async (req, res) => {
  */
 router.get('/unauthorized', async (req, res) => {
     try {
-        permissions.checkUnconfiguredUserPermission()
+        permissions.checkUnconfiguredUserPermission(req.user)
 
         let users = await models.User.findAll({
             order: [['createdAt', 'DESC']],
