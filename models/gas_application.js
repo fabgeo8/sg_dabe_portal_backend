@@ -47,6 +47,9 @@ module.exports = (sequelize, Sequelize) => {
         fuel_type: {
             type: Sequelize.STRING
         },
+        gas_operator: {
+            type: Sequelize.STRING
+        },
         remark: {
             type: Sequelize.TEXT
         },

@@ -14,6 +14,7 @@ const municipalityRouter = require('./routes/municipalities');
 const gasApplicationRouter = require('./routes/gasApplications');
 const pvApplicationRouter = require('./routes/pvApplications');
 const userRouter = require('./routes/users');
+const settingsRouter = require('./routes/settings');
 
 const {application} = require("express");
 
@@ -43,6 +44,8 @@ db.sequelize.sync({
 //include routes
 app.use(apiPath, indexRouter);
 
+app.use(apiPath + 'settings', settingsRouter);
+
 // check access token on each incoming request for all routes after this statement
 // 401 unauthorized is returned if no or invalid access_token is provided
 app.use(jwtCheck);
@@ -53,6 +56,7 @@ app.use(apiPath + 'municipalities', municipalityRouter);
 app.use(apiPath + 'applications/gas', gasApplicationRouter);
 app.use(apiPath + 'applications/pv', pvApplicationRouter);
 app.use(apiPath + 'users', userRouter);
+
 
 // catch error request
 app.use(function(err, req, res, next) {

@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
                     attributes: ['name'],
                     required: true
                 }],
-            attributes: ['id', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'fuel_type', 'address', 'object_plot', 'generator_area', 'boiler_replacement_year', 'year_of_construction', 'status', 'remark', 'last_status_date', 'status_changed_dates' ]
+            attributes: ['id', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'fuel_type', 'address', 'object_plot', 'generator_area', 'boiler_replacement_year', 'gas_operator',  'year_of_construction', 'status', 'remark', 'last_status_date', 'status_changed_dates' ]
         })
 
         res.json(gasApplications)

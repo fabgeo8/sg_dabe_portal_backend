@@ -23,6 +23,7 @@ db.GasApplication = require("./gas_application")(sequelize, Sequelize);
 db.PvApplication = require("./pv_application")(sequelize, Sequelize);
 db.Municipality = require("./municipalities")(sequelize, Sequelize);
 db.User = require("./users")(sequelize, Sequelize);
+db.GasOperator = require("./gas_operators")(sequelize, Sequelize);
 
 db.GasApplication.belongsTo(db.Municipality);
 db.Municipality.hasOne(db.GasApplication);

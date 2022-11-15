@@ -1,0 +1,61 @@
+const express = require('express');
+const router = express.Router();
+const models = require('../models')
+const {Op} = require("sequelize");
+const Status = require("../utils/status");
+const permissions = require("../services/permissions");
+const axios = require('axios')
+
+const publicApiHost = 'http://localhost:3014/api/v1'
+
+router.post('/push_settings', async (req, res) => {
+    try {
+        let municipalities = await models.Municipality.findAll()
+
+        axios.post(publicApiHost + '/municipalities', {municipalities: municipalities})
+            .then((res) => {
+                console.log('municipalities pushed to api successfully')
+            })
+            .catch((err) => {
+                console.log("Error while trying to push municipalities", err)
+            })
+
+        let gasOperators = await models.GasOperator.findAll()
+
+        axios.post(publicApiHost + '/gas_operators', {gasoperators: gasOperators})
+            .then((res) => {
+                console.log('gasoperators pushed to api successfully')
+            })
+            .catch((err) => {
+                console.log("Error while trying to push gasoperators", err)
+            })
+
+
+        res.status(200).json({
+            message: "sync successful"
+        })
+    } catch {
+        res.status(404).send({error: "municipal list could not be retrieved"})
+    }
+})
+
+/*
+ * get gas operator list
+ */
+router.get('/gas_operators', async (req, res) => {
+    try {
+        // permissions.checkUnconfiguredUserPermission(req.user)
+
+        let gasOperators = await models.GasOperator.findAll({
+            order: [['name', 'ASC']],
+            attributes: ['id', 'name']
+        })
+
+        res.json(gasOperators)
+    } catch (ex) {
+        res.status(404).send({error: "gas operator list could not be retrieved", message: ex.message})
+    }
+})
+
+
+module.exports = router;
