@@ -10,7 +10,11 @@ const publicApiHost = 'http://localhost:3014/api/v1'
 
 router.post('/push_settings', async (req, res) => {
     try {
-        let municipalities = await models.Municipality.findAll()
+        permissions.checkAllUserPermission(req.user)
+
+        let municipalities = await models.Municipality.findAll({
+            include: models.Address
+        })
 
         axios.post(publicApiHost + '/municipalities', {municipalities: municipalities})
             .then((res) => {
@@ -44,11 +48,9 @@ router.post('/push_settings', async (req, res) => {
  */
 router.get('/gas_operators', async (req, res) => {
     try {
-        // permissions.checkUnconfiguredUserPermission(req.user)
-
         let gasOperators = await models.GasOperator.findAll({
             order: [['name', 'ASC']],
-            attributes: ['id', 'name']
+            attributes: ['id', 'name', 'short_name']
         })
 
         res.json(gasOperators)

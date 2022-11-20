@@ -12,6 +12,11 @@ module.exports = (sequelize, Sequelize) => {
             unique: true,
             allowNull: false
         },
+        short_name: {
+            type: Sequelize.STRING,
+            unique: true,
+            allowNull: false
+        }
     });
 
     return GasOperator;

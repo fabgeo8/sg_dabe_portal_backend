@@ -4,6 +4,9 @@ const models = require('../models')
 const {Op} = require("sequelize");
 const Status = require("../utils/status");
 const permissions = require("../services/permissions");
+const Activity = require("../services/activities");
+
+const PV_ATTRIBUTES = ['id', 'MunicipalityId', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'address', 'object_plot', 'generator_area', 'fee', 'status', 'remark', 'status_changed_dates', 'last_status_date']
 
 router.get('/', async (req, res) => {
     try {
@@ -45,7 +48,7 @@ router.get('/', async (req, res) => {
                     attributes: ['name'],
                     required: true
                 }],
-            attributes: ['id', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'address', 'object_plot', 'generator_area', 'fee', 'status', 'remark', 'status_changed_dates', 'last_status_date']
+            attributes: PV_ATTRIBUTES
         })
 
         res.json(pvApplications)
@@ -77,29 +80,34 @@ router.get('/stats', async (req, res) => {
             open: {
                 count: 0,
                 feeTotal: 0,
-                generatorAreaTotal: 0
+                generatorAreaTotal: 0,
+                applicationIds: []
             },
             granted: {
                 count: 0,
                 feeTotal: 0,
-                generatorAreaTotal: 0
+                generatorAreaTotal: 0,
+                applicationIds: []
             },
             completed: {
                 count: 0,
                 feeTotal: 0,
-                generatorAreaTotal: 0
+                generatorAreaTotal: 0,
+                applicationIds: []
             }
         }
 
         queryFilter.status = Status.OPEN
-        let openApplications = await models.PvApplication.findAll({where: queryFilter}, {
+        let openApplications = await models.PvApplication.findAll({
+            order: [['createdAt', 'DESC']],
+            where: queryFilter,
             include: [
                 {
                     model: models.Municipality,
                     attributes: ['name'],
                     required: true
-                }
-            ]
+                }],
+            attributes: PV_ATTRIBUTES
         })
 
         if (queryParams.dateFrom && queryParams.dateFrom !== 'undefined' && queryParams.dateFrom !== 'null' &&
@@ -116,48 +124,113 @@ router.get('/stats', async (req, res) => {
         }
 
         queryFilter.status = Status.GRANTED
-        let grantedApplications = await models.PvApplication.findAll({where: queryFilter}, {
+        let grantedApplications = await models.PvApplication.findAll({
+            order: [['createdAt', 'DESC']],
+            where: queryFilter,
             include: [
                 {
                     model: models.Municipality,
                     attributes: ['name'],
                     required: true
-                }
-            ]
+                }],
+            attributes: PV_ATTRIBUTES
         })
 
         queryFilter.status = Status.COMPLETE
-        let completedApplications = await models.PvApplication.findAll({where: queryFilter}, {
+        let completedApplications = await models.PvApplication.findAll({
+            order: [['createdAt', 'DESC']],
+            where: queryFilter,
             include: [
                 {
                     model: models.Municipality,
                     attributes: ['name'],
                     required: true
-                }
-            ]
+                }],
+            attributes: PV_ATTRIBUTES
         })
 
         result.open.count = openApplications.length
         openApplications.forEach((application) => {
             result.open.feeTotal += application.fee
             result.open.generatorAreaTotal += parseFloat(application.generator_area)
+            result.open.applicationIds.push(application)
         })
 
         result.granted.count = grantedApplications.length
         grantedApplications.forEach((application) => {
             result.granted.feeTotal += application.fee
             result.granted.generatorAreaTotal += parseFloat(application.generator_area)
+            result.granted.applicationIds.push(application)
         })
 
         result.completed.count = completedApplications.length
         completedApplications.forEach((application) => {
             result.completed.feeTotal += application.fee
             result.completed.generatorAreaTotal += parseFloat(application.generator_area)
+            result.completed.applicationIds.push(application)
         })
 
         res.json(result)
     } catch (ex) {
         res.status(404).send({error: "pv stats could not be retrieved", message: ex.message})
+    }
+})
+
+router.get('/activities', async (req, res) => {
+    try {
+
+        let queryFilter = {}
+        let queryParams = req.query
+        if (queryParams.municipality && queryParams.municipality !== 'undefined' && queryParams.municipality !== 'null' && queryParams.municipality !== '0') {
+            // queryFilter.MunicipalityId = queryParams.municipality
+        }
+
+        let municipality = await models.Municipality.findByPk(queryParams.municipality)
+        if (municipality) {
+            // if user requests municipality check if municipality exists and check permissions, otherwise check all permissions
+            permissions.checkMunicipalityPermission(req.user, municipality.id)
+        } else {
+            permissions.checkCantonPermission(req.user)
+        }
+
+        // add date filter only for granted and completed request
+        if (queryParams.dateFrom && queryParams.dateFrom !== 'undefined' && queryParams.dateFrom !== 'null' &&
+            queryParams.dateTo && queryParams.dateTo !== 'undefined' && queryParams.dateTo !== 'null') {
+            let dateFrom = new Date(queryParams.dateFrom)
+            let dateTo = new Date(queryParams.dateTo)
+            dateTo = new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate(), 23, 59, 59)
+
+            queryFilter.createdAt = {
+                [Op.gte]: dateFrom,
+                [Op.lte]: dateTo,
+            }
+        }
+
+        queryFilter.application_type = 'pv'
+
+        let pvActivities = await models.Activity.findAll({
+            order: [['createdAt', 'DESC']],
+            where: queryFilter,
+            limit : parseInt(queryParams.limit)
+        })
+
+        // filter activities by municipality of application, if municipality filter is active
+        let filteredActivities = []
+        if (municipality) {
+            for (const activity of pvActivities) {
+                let a = await models.PvApplication.findByPk(activity.application)
+
+                if (a.MunicipalityId === municipality.id) {
+                    filteredActivities.push(activity)
+                }
+            }
+        } else {
+            filteredActivities = pvActivities
+        }
+
+        res.json(filteredActivities)
+    } catch (ex) {
+        res.status(404).send({error: "gas activities could not be retrieved", message: ex.message})
     }
 })
 
@@ -171,36 +244,58 @@ router.get('/:id', async (req, res) => {
                     attributes: ['name'],
                     required: true
                 }
-            ]
+            ],
+            attributes: PV_ATTRIBUTES,
+            raw: true
         })
 
-        permissions.checkMunicipalityPermission(req.user, pvApplication.MunicipalityId )
+        permissions.checkMunicipalityPermission(req.user, pvApplication.MunicipalityId)
 
+        let applicationActivities = await models.Activity.findAll({
+            where: {
+                application: pvApplication.id
+            },
+            order: [['createdAt', 'DESC']]
+        })
+
+        pvApplication.activities = applicationActivities
 
         res.json(pvApplication)
     } catch (ex) {
-        res.status(404).send({error: "pv application could not be retrieved", message: ex.message})
+        res.status(404).send({error: "gas application could not be retrieved", message: ex.message})
     }
 })
 
 router.get('/by_identifier/:id', async (req, res) => {
     try {
 
-        let pvApplication = await models.PvApplication.findOne({where: {identifier: req.params.id}}, {
+        let pvApplication = await models.PvApplication.findOne({
+            where: {identifier: req.params.id},
             include: [
                 {
                     model: models.Municipality,
                     attributes: ['name'],
                     required: true
                 }
-            ]
+            ],
+            attributes: PV_ATTRIBUTES,
+            raw: true
         })
 
-        permissions.checkMunicipalityPermission(req.user, pvApplication.MunicipalityId )
+        permissions.checkMunicipalityPermission(req.user, pvApplication.MunicipalityId)
+
+        let applicationActivities = await models.Activity.findAll({
+            where: {
+                application: pvApplication.id
+            },
+            order: [['createdAt', 'DESC']]
+        })
+
+        pvApplication.activities = applicationActivities
 
         res.json(pvApplication)
     } catch (ex) {
-        res.status(404).send({error: "pv application could not be retrieved", message: ex.message})
+        res.status(404).send({error: "gas application could not be retrieved", message: ex.message})
     }
 })
 
@@ -208,42 +303,58 @@ router.patch('/:id', async (req, res) => {
     try {
         let pvApplication = await models.PvApplication.findByPk(req.params.id)
 
-        permissions.checkMunicipalityPermission(req.user, pvApplication.MunicipalityId )
+        let activityLog = []
 
-        if (req.body.object_egid || req.body.object_egid === '') {
+        permissions.checkMunicipalityPermission(req.user, pvApplication.MunicipalityId)
+
+        if ((req.body.object_egid || req.body.object_egid === '') &&
+            req.body.object_egid !== pvApplication.object_egid) {
             pvApplication.object_egid = req.body.object_egid
+            activityLog.push(Activity.buildPvActivity('EGID', req.user, pvApplication))
         }
 
-        if (req.body.object_street || req.body.object_street === '') {
+        if ((req.body.object_street || req.body.object_street === '') &&
+            req.body.object_street !== pvApplication.object_street) {
             pvApplication.object_street = req.body.object_street
+            activityLog.push(Activity.buildPvActivity('Strasse', req.user, pvApplication))
         }
 
-        if (req.body.object_streetnumber || req.body.object_streetnumber === '') {
+        if ((req.body.object_streetnumber || req.body.object_streetnumber === '') &&
+            req.body.object_streetnumber !== pvApplication.object_streetnumber) {
             pvApplication.object_streetnumber = req.body.object_streetnumber
+            activityLog.push(Activity.buildPvActivity('Hausnummer', req.user, pvApplication))
         }
 
-        if (req.body.object_city || req.body.object_city === '') {
+        if ((req.body.object_city || req.body.object_city === '') &&
+            req.body.object_city !== pvApplication.object_city) {
             pvApplication.object_city = req.body.object_city
+            activityLog.push(Activity.buildPvActivity('Ort', req.user, pvApplication))
         }
 
-        if (req.body.object_zip || req.body.object_zip === '') {
+        if ((req.body.object_zip || req.body.object_zip === '') &&
+            req.body.object_zip !== pvApplication.object_zip) {
             pvApplication.object_zip = req.body.object_zip
+            activityLog.push(Activity.buildPvActivity('PLZ', req.user, pvApplication))
         }
 
-        if (req.body.remark || req.body.remark === '') {
+        if ((req.body.remark || req.body.remark === '') &&
+            req.body.remark !== pvApplication.remark) {
             pvApplication.remark = req.body.remark
+            activityLog.push(Activity.buildPvActivity('Bemerkung', req.user, pvApplication))
         }
 
-        // todo: check if request is authorized to change municipality
-        // todo: check if municipality exists, so reference is always given
-        if (req.body.municipality) {
+        // only canton users are allowed to change municipality of an application
+        if (req.body.municipality && req.body.municipality !== pvApplication.MunicipalityId) {
+            permissions.checkCantonPermission(req.user)
             pvApplication.MunicipalityId = req.body.municipality
+            activityLog.push(Activity.buildPvActivity('Gemeinde', req.user, pvApplication))
         }
 
         // status is changed -> change status on model and add the changed status as last status change date
         if (req.body.status && req.body.status !== pvApplication.status && req.body.status_date) {
             // only allow possible status
             if (Object.values(Status).includes(req.body.status)) {
+                activityLog.push(Activity.buildPvActivity('Status', req.user, pvApplication, req.body.status, pvApplication.status))
                 pvApplication.status = req.body.status
                 pvApplication.last_status_date = new Date(req.body.status_date)
 
@@ -254,11 +365,8 @@ router.patch('/:id', async (req, res) => {
             }
         }
 
-        if (req.body.remark || req.body.remark === '') {
-            pvApplication.remark = req.body.remark
-        }
-
         await pvApplication.save()
+        activityLog.forEach(log => log.save())
 
         res.status(200).send("Application updated")
     } catch (ex) {
