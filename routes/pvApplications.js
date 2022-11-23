@@ -211,24 +211,18 @@ router.get('/activities', async (req, res) => {
         let pvActivities = await models.Activity.findAll({
             order: [['createdAt', 'DESC']],
             where: queryFilter,
-            limit : parseInt(queryParams.limit)
+            limit : parseInt(queryParams.limit),
+            include: {
+                model: models.PvApplication,
+                where: {
+                    MunicipalityId: municipality.id
+                },
+                attributes: ['MunicipalityId']
+            }
         })
 
-        // filter activities by municipality of application, if municipality filter is active
-        let filteredActivities = []
-        if (municipality) {
-            for (const activity of pvActivities) {
-                let a = await models.PvApplication.findByPk(activity.application)
 
-                if (a.MunicipalityId === municipality.id) {
-                    filteredActivities.push(activity)
-                }
-            }
-        } else {
-            filteredActivities = pvActivities
-        }
-
-        res.json(filteredActivities)
+        res.json(pvActivities)
     } catch (ex) {
         res.status(404).send({error: "gas activities could not be retrieved", message: ex.message})
     }

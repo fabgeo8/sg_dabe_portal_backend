@@ -36,4 +36,22 @@ db.Municipality.hasOne(db.PvApplication);
 db.Municipality.hasMany(db.Address);
 db.Address.belongsTo(db.Municipality);
 
+db.GasApplication.hasMany(db.Activity, {
+    foreignKey: 'application',
+    constraints: false
+})
+db.Activity.belongsTo(db.GasApplication, {
+    foreignKey: 'application',
+    constraints: false
+})
+
+db.PvApplication.hasMany(db.Activity, {
+    foreignKey: 'application',
+    constraints: false
+})
+db.Activity.belongsTo(db.PvApplication, {
+    foreignKey: 'application',
+    constraints: false
+})
+
 module.exports = db;
