@@ -62,6 +62,10 @@ router.patch('/:municipalityid/addresses/:addressid', async (req, res) => {
             address.line_3 = req.body.line_3
         }
 
+        if (req.body.line_4 || req.body.line_4 === '') {
+            address.line_4 = req.body.line_4
+        }
+
         if (req.body.zip || req.body.zip === '') {
             address.zip = req.body.zip
         }

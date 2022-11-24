@@ -18,6 +18,9 @@ module.exports = {
       line_3: {
         type: Sequelize.STRING
       },
+      line_4: {
+        type: Sequelize.STRING
+      },
       zip: {
         type: Sequelize.STRING
       },
