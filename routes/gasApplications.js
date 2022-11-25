@@ -201,6 +201,12 @@ router.get('/activities', async (req, res) => {
         }
 
         queryFilter.application_type = 'gas'
+        let applicationFilter = {}
+        if (municipality) {
+            applicationFilter = {
+                MunicipalityId: municipality.id
+            }
+        }
 
         let gasActivities = await models.Activity.findAll({
             order: [['createdAt', 'DESC']],
@@ -208,9 +214,7 @@ router.get('/activities', async (req, res) => {
             limit : parseInt(queryParams.limit),
             include: {
                 model: models.GasApplication,
-                where: {
-                    MunicipalityId: municipality.id
-                },
+                where: applicationFilter,
                 attributes: ['MunicipalityId']
             }
         })

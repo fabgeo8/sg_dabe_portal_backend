@@ -16,7 +16,13 @@ router.post('/push_settings', async (req, res) => {
             include: models.Address
         })
 
-        axios.post(publicApiHost + '/municipalities', {municipalities: municipalities})
+        const requestConfig = {
+            headers:{
+                access_key: process.env.ACCESS_KEY_FORMSYSTEM
+            }
+        };
+
+        axios.post(publicApiHost + '/municipalities', {municipalities: municipalities}, requestConfig)
             .then((res) => {
                 console.log('municipalities pushed to api successfully')
             })
@@ -26,7 +32,7 @@ router.post('/push_settings', async (req, res) => {
 
         let gasOperators = await models.GasOperator.findAll()
 
-        axios.post(publicApiHost + '/gas_operators', {gasoperators: gasOperators})
+        axios.post(publicApiHost + '/gas_operators', {gasoperators: gasOperators}, requestConfig)
             .then((res) => {
                 console.log('gasoperators pushed to api successfully')
             })

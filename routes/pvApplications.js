@@ -208,19 +208,23 @@ router.get('/activities', async (req, res) => {
 
         queryFilter.application_type = 'pv'
 
+        let applicationFilter = {}
+        if (municipality) {
+            applicationFilter = {
+                MunicipalityId: municipality.id
+            }
+        }
+
         let pvActivities = await models.Activity.findAll({
             order: [['createdAt', 'DESC']],
             where: queryFilter,
             limit : parseInt(queryParams.limit),
             include: {
                 model: models.PvApplication,
-                where: {
-                    MunicipalityId: municipality.id
-                },
+                where: applicationFilter,
                 attributes: ['MunicipalityId']
             }
         })
-
 
         res.json(pvActivities)
     } catch (ex) {
