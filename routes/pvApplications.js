@@ -361,7 +361,7 @@ router.patch('/:id', async (req, res) => {
                 statusChangeDates[pvApplication.status] = pvApplication.last_status_date
                 pvApplication.status_changed_dates = statusChangeDates
             }
-        } else if (req.body.status_date && new Date(req.body.status_date) !== pvApplication.last_status_date) {
+        } else if (req.body.status_date && new Date(req.body.status_date) !== new Date(pvApplication.last_status_date)) {
             // case when only status date is changed but not the date
             pvApplication.last_status_date = new Date(req.body.status_date)
             activityLog.push(Activity.buildGasActivity('Statusdatum', req.user, pvApplication))
