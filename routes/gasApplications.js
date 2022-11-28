@@ -378,6 +378,15 @@ router.patch('/:id', async (req, res) => {
                 statusChangeDates[gasApplication.status] = gasApplication.last_status_date
                 gasApplication.status_changed_dates = statusChangeDates
             }
+        } else if (req.body.status_date && new Date(req.body.status_date) !== gasApplication.last_status_date) {
+            // case when only status date is changed but not the date
+            gasApplication.last_status_date = new Date(req.body.status_date)
+            activityLog.push(Activity.buildGasActivity('Statusdatum', req.user, gasApplication))
+
+            // add new status and assigned date to object where all status dates are saved
+            let statusChangeDates = gasApplication.status_changed_dates
+            statusChangeDates[gasApplication.status] = gasApplication.last_status_date
+            gasApplication.status_changed_dates = statusChangeDates
         }
 
         await gasApplication.save()
