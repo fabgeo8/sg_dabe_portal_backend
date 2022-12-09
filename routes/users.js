@@ -5,6 +5,7 @@ const {Op} = require("sequelize");
 const Status = require("../utils/status");
 const Roles = require("../utils/roles");
 const permissions = require("../services/permissions")
+const Mailer = require("../services/mailer")
 
 const cantonLocation = 'canton';
 
@@ -100,8 +101,6 @@ router.patch('/:userId/set_authorized', async (req, res) => {
     try {
         let user = await models.User.findByPk(req.params.userId)
 
-
-
         if (req.body.userLocation) {
             // user location is either municipalityid for municipality users or 'canton' for canton users
             if (req.body.userLocation === cantonLocation) {
@@ -123,6 +122,7 @@ router.patch('/:userId/set_authorized', async (req, res) => {
         }
 
         await user.save()
+        await Mailer.sendUserActivationMessage(user.email)
 
         res.status(200).send("user updated")
     } catch (ex) {
