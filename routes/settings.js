@@ -6,7 +6,7 @@ const Status = require("../utils/status");
 const permissions = require("../services/permissions");
 const axios = require('axios')
 
-const publicApiHost = 'http://localhost:3014/api/v1'
+const publicApiHost = process.env.PUBLIC_API_HOST
 
 router.post('/push_settings', async (req, res) => {
     try {

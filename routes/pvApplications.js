@@ -6,7 +6,7 @@ const Status = require("../utils/status");
 const permissions = require("../services/permissions");
 const Activity = require("../services/activities");
 
-const PV_ATTRIBUTES = ['id', 'MunicipalityId', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'address', 'object_plot', 'generator_area', 'fee', 'status', 'remark', 'status_changed_dates', 'last_status_date']
+const PV_ATTRIBUTES = ['id', 'MunicipalityId', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'address', 'object_plot', 'generator_area', 'fee', 'status', 'remark', 'status_changed_dates', 'last_status_date', 'cleared', 'cleared_date']
 
 router.get('/', async (req, res) => {
     try {
@@ -94,6 +94,12 @@ router.get('/stats', async (req, res) => {
                 feeTotal: 0,
                 generatorAreaTotal: 0,
                 applicationIds: []
+            },
+            cleared: {
+                count: 0,
+                feeTotal: 0,
+                generatorAreaTotal: 0,
+                applicationIds: []
             }
         }
 
@@ -149,6 +155,20 @@ router.get('/stats', async (req, res) => {
             attributes: PV_ATTRIBUTES
         })
 
+        queryFilter.status = Status.COMPLETE
+        queryFilter.cleared = true
+        let clearedApplications = await models.PvApplication.findAll({
+            order: [['createdAt', 'DESC']],
+            where: queryFilter,
+            include: [
+                {
+                    model: models.Municipality,
+                    attributes: ['name'],
+                    required: true
+                }],
+            attributes: PV_ATTRIBUTES
+        })
+
         result.open.count = openApplications.length
         openApplications.forEach((application) => {
             result.open.feeTotal += application.fee
@@ -168,6 +188,13 @@ router.get('/stats', async (req, res) => {
             result.completed.feeTotal += application.fee
             result.completed.generatorAreaTotal += parseFloat(application.generator_area)
             result.completed.applicationIds.push(application)
+        })
+
+        result.cleared.count = clearedApplications.length
+        clearedApplications.forEach((application) => {
+            result.cleared.feeTotal += application.fee
+            result.cleared.generatorAreaTotal += parseFloat(application.generator_area)
+            result.cleared.applicationIds.push(application)
         })
 
         res.json(result)
@@ -297,6 +324,33 @@ router.get('/by_identifier/:id', async (req, res) => {
     }
 })
 
+router.post('/clear_applications', async (req, res) => {
+    try {
+        permissions.checkCantonPermission(req.user)
+
+        let activityLog = []
+
+        let applications = req.body.applications
+
+        for (const application of applications) {
+            let a = await models.PvApplication.findByPk(application.id)
+            if (!a.cleared) {
+                a.cleared = true
+                a.cleared_date = new Date()
+                await a.save()
+
+                activityLog.push(Activity.buildPvActivity('Abgerechnet', req.user, a))
+            }
+        }
+
+        res.status(200).json({ message: 'applications updated'})
+        activityLog.forEach((a) => a.save())
+
+    } catch (ex) {
+        res.status(404).send({error: "applications could not be updated", message: ex.message})
+    }
+})
+
 router.patch('/:id', async (req, res) => {
     try {
         let pvApplication = await models.PvApplication.findByPk(req.params.id)
@@ -346,6 +400,29 @@ router.patch('/:id', async (req, res) => {
             permissions.checkCantonPermission(req.user)
             pvApplication.MunicipalityId = req.body.municipality
             activityLog.push(Activity.buildPvActivity('Gemeinde', req.user, pvApplication))
+        }
+
+        // only canton users are allowed to change cleared state of a pv application
+        if ((req.body.cleared === true || req.body.cleared === false )
+            && req.body.cleared !== pvApplication.cleared) {
+            permissions.checkCantonPermission(req.user)
+            if (req.body.cleared === true) {
+                if (req.body.cleared_date) {
+                    pvApplication.cleared = req.body.cleared
+                    pvApplication.cleared_date = req.body.cleared_date
+                    // todo: michi was machen wir mit datum status
+                    // activityLog.push(Activity.buildPvActivity('Abrechnungsdatum', req.user, pvApplication))
+                }
+            } else {
+                pvApplication.cleared = false
+                pvApplication.cleared_date = null
+            }
+
+            activityLog.push(Activity.buildPvActivity('Abgerechnet', req.user, pvApplication))
+        } else if (req.body.cleared_date && req.body.cleared_date !== pvApplication.cleared_date) {
+            permissions.checkCantonPermission(req.user)
+            pvApplication.cleared_date = req.body.cleared_date
+            activityLog.push(Activity.buildPvActivity('Abrechnungsdatum', req.user, pvApplication))
         }
 
         // status is changed -> change status on model and add the changed status as last status change date

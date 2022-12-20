@@ -44,6 +44,13 @@ module.exports = (sequelize, Sequelize) => {
         remark: {
             type: Sequelize.TEXT
         },
+        cleared: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: false
+        },
+        cleared_date: {
+            type: Sequelize.DATEONLY
+        },
         last_status_date: {
             type: Sequelize.DATEONLY,
             defaultValue: Sequelize.NOW
