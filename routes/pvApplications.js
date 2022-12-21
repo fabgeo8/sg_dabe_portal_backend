@@ -5,6 +5,7 @@ const {Op} = require("sequelize");
 const Status = require("../utils/status");
 const permissions = require("../services/permissions");
 const Activity = require("../services/activities");
+const Roles = require("../utils/roles");
 
 const PV_ATTRIBUTES = ['id', 'MunicipalityId', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'address', 'object_plot', 'generator_area', 'fee', 'status', 'remark', 'status_changed_dates', 'last_status_date', 'cleared', 'cleared_date']
 
@@ -359,6 +360,18 @@ router.patch('/:id', async (req, res) => {
 
         permissions.checkMunicipalityPermission(req.user, pvApplication.MunicipalityId)
 
+        // if application is already cleared municipality users are only allowed to updated remarks
+        if ((req.user.role === Roles.MUNICIPALITY_USER || req.user.role === Roles.MUNICIPALITY_ADMIN)
+        && pvApplication.cleared === true) {
+            const allowedFields = ['remark'];
+            req.body = Object.keys(req.body.toObject())
+                .filter(key => allowedFields.includes(key))
+                .reduce((obj, key) => {
+                    obj[key] = req.body[key];
+                    return obj;
+                }, {});
+        }
+
         if ((req.body.object_egid || req.body.object_egid === '') &&
             req.body.object_egid !== pvApplication.object_egid) {
             pvApplication.object_egid = req.body.object_egid
@@ -395,6 +408,16 @@ router.patch('/:id', async (req, res) => {
             activityLog.push(Activity.buildPvActivity('Bemerkung', req.user, pvApplication))
         }
 
+        if (req.body.generator_area && req.body.generator_area !== pvApplication.generator_area) {
+            pvApplication.generator_area = req.body.generator_area
+            activityLog.push(Activity.buildPvActivity('EBF', req.user, pvApplication))
+        }
+
+        if (req.body.fee && req.body.fee !== pvApplication.fee) {
+            pvApplication.fee = req.body.fee
+            activityLog.push(Activity.buildPvActivity('Ersatzabgabe', req.user, pvApplication))
+        }
+
         // only canton users are allowed to change municipality of an application
         if (req.body.municipality && req.body.municipality !== pvApplication.MunicipalityId) {
             permissions.checkCantonPermission(req.user)
@@ -407,11 +430,13 @@ router.patch('/:id', async (req, res) => {
             && req.body.cleared !== pvApplication.cleared) {
             permissions.checkCantonPermission(req.user)
             if (req.body.cleared === true) {
+                // check if cleared date is set, otherwise it's not allowed to clear an application
                 if (req.body.cleared_date) {
-                    pvApplication.cleared = req.body.cleared
-                    pvApplication.cleared_date = req.body.cleared_date
-                    // todo: michi was machen wir mit datum status
-                    // activityLog.push(Activity.buildPvActivity('Abrechnungsdatum', req.user, pvApplication))
+                    // check if status_date for completed status is set, otherwise it should not be possible to clear an application
+                    if (pvApplication.status_changed_dates[Status.COMPLETE]) {
+                        pvApplication.cleared = req.body.cleared
+                        pvApplication.cleared_date = req.body.cleared_date
+                    }
                 }
             } else {
                 pvApplication.cleared = false

@@ -365,6 +365,12 @@ router.patch('/:id', async (req, res) => {
             activityLog.push(Activity.buildGasActivity('Gemeinde', req.user, gasApplication))
         }
 
+        if ((req.body.generator_area || req.body.generator_area === '') &&
+            req.body.generator_area !== gasApplication.generator_area) {
+            gasApplication.generator_area = req.body.generator_area
+            activityLog.push(Activity.buildGasActivity('EBF', req.user, gasApplication))
+        }
+
         // status is changed -> change status on model and add the changed status as last status change date
         if (req.body.status && req.body.status !== gasApplication.status && req.body.status_date) {
             // only allow possible status
