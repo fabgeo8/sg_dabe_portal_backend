@@ -7,7 +7,7 @@ const permissions = require("../services/permissions");
 const Activity = require("../services/activities");
 const Roles = require("../utils/roles");
 
-const PV_ATTRIBUTES = ['id', 'MunicipalityId', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'address', 'object_plot', 'generator_area', 'fee', 'status', 'remark', 'status_changed_dates', 'last_status_date', 'cleared', 'cleared_date']
+const PV_ATTRIBUTES = ['id', 'MunicipalityId', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'address', 'object_plot', 'generator_area', 'fee', 'fee_amount_canton', 'fee_amount_municipality', 'status', 'remark', 'status_changed_dates', 'last_status_date', 'cleared', 'cleared_date']
 
 router.get('/', async (req, res) => {
     try {
@@ -64,7 +64,6 @@ router.get('/stats', async (req, res) => {
         let queryFilter = {}
         let queryParams = req.query
 
-
         if (queryParams.municipality && queryParams.municipality !== 'undefined' && queryParams.municipality !== 'null' && queryParams.municipality !== '0') {
             queryFilter.MunicipalityId = queryParams.municipality
         }
@@ -99,6 +98,8 @@ router.get('/stats', async (req, res) => {
             cleared: {
                 count: 0,
                 feeTotal: 0,
+                feeCanton: 0,
+                feeMunicipalities: 0,
                 generatorAreaTotal: 0,
                 applicationIds: []
             }
@@ -194,6 +195,8 @@ router.get('/stats', async (req, res) => {
         result.cleared.count = clearedApplications.length
         clearedApplications.forEach((application) => {
             result.cleared.feeTotal += application.fee
+            result.cleared.feeMunicipalities += application.fee_amount_municipality
+            result.cleared.feeCanton += application.fee_amount_canton
             result.cleared.generatorAreaTotal += parseFloat(application.generator_area)
             result.cleared.applicationIds.push(application)
         })
@@ -329,6 +332,9 @@ router.post('/clear_applications', async (req, res) => {
     try {
         permissions.checkCantonPermission(req.user)
 
+        let setting = await models.GlobalSetting.findOne({where: {setting: 'fee_amount_municipality'}})
+        const FEE_AMOUNT_MUNICIPALITY = parseFloat(setting.value)
+
         let activityLog = []
 
         let applications = req.body.applications
@@ -338,6 +344,9 @@ router.post('/clear_applications', async (req, res) => {
             if (!a.cleared) {
                 a.cleared = true
                 a.cleared_date = new Date()
+
+                a.fee_amount_canton = a.fee - FEE_AMOUNT_MUNICIPALITY
+                a.fee_amount_municipality = FEE_AMOUNT_MUNICIPALITY
                 await a.save()
 
                 activityLog.push(Activity.buildPvActivity('Abgerechnet', req.user, a))
@@ -434,13 +443,21 @@ router.patch('/:id', async (req, res) => {
                 if (req.body.cleared_date) {
                     // check if status_date for completed status is set, otherwise it should not be possible to clear an application
                     if (pvApplication.status_changed_dates[Status.COMPLETE]) {
-                        pvApplication.cleared = req.body.cleared
+
+                        let setting = await models.GlobalSetting.findOne({where: {setting: 'fee_amount_municipality'}})
+                        const FEE_AMOUNT_MUNICIPALITY = parseFloat(setting.value)
+
+                        pvApplication.cleared = true
                         pvApplication.cleared_date = req.body.cleared_date
+                        pvApplication.fee_amount_canton = pvApplication.fee - FEE_AMOUNT_MUNICIPALITY
+                        pvApplication.fee_amount_municipality = FEE_AMOUNT_MUNICIPALITY
                     }
                 }
             } else {
                 pvApplication.cleared = false
                 pvApplication.cleared_date = null
+                pvApplication.fee_amount_canton = 0
+                pvApplication.fee_amount_municipality = 0
             }
 
             activityLog.push(Activity.buildPvActivity('Abgerechnet', req.user, pvApplication))

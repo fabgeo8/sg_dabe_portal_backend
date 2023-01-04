@@ -5,6 +5,7 @@ const {Op} = require("sequelize");
 const Status = require("../utils/status");
 const permissions = require("../services/permissions");
 const axios = require('axios')
+const Activity = require("../services/activities");
 
 const publicApiHost = process.env.PUBLIC_API_HOST
 
@@ -64,6 +65,74 @@ router.get('/gas_operators', async (req, res) => {
         res.status(404).send({error: "gas operator list could not be retrieved", message: ex.message})
     }
 })
+
+/*
+ * get gas operator list
+ */
+router.get('/gas_operators/:id', async (req, res) => {
+    try {
+        permissions.checkCantonPermission(req.user);
+        let gasOperator = await models.GasOperator.findByPk(req.params.id, {
+            attributes: ['id', 'name', 'short_name']
+        })
+
+        res.json(gasOperator)
+    } catch (ex) {
+        res.status(404).send({error: "gas operator could not be retrieved", message: ex.message})
+    }
+})
+
+router.patch('/gas_operators/:id', async (req, res) => {
+    try {
+        permissions.checkCantonPermission(req.user);
+        let gasOperator = await models.GasOperator.findByPk(req.params.id)
+
+        if (req.body.name && req.body.name !== gasOperator.name) {
+            gasOperator.name = req.body.name
+        }
+
+        if (req.body.short_name && req.body.short_name !== gasOperator.short_name) {
+            gasOperator.short_name = req.body.short_name
+        }
+
+        await gasOperator.save()
+
+        res.status(200).json({message: 'gas operator updated'})
+    } catch (ex) {
+        res.status(404).send({error: "settings could not be retrieved", message: ex.message})
+    }
+})
+
+router.get('/global', async (req, res) => {
+    try {
+        permissions.checkCantonPermission(req.user);
+        let settings = await models.GlobalSetting.findAll({
+            attributes: ['setting', 'value']
+        })
+
+        res.json(settings)
+    } catch (ex) {
+        res.status(404).send({error: "settings could not be retrieved", message: ex.message})
+    }
+})
+
+router.patch('/global/:setting', async (req, res) => {
+    try {
+        permissions.checkCantonPermission(req.user);
+        let setting = await models.GlobalSetting.findOne({ where: {setting: req.params.setting}})
+
+        setting.value = req.body.value
+
+        await setting.save()
+
+        res.status(200).json({message: 'setting updated'})
+    } catch (ex) {
+        res.status(404).send({error: "settings could not be retrieved", message: ex.message})
+    }
+})
+
+
+
 
 
 module.exports = router;

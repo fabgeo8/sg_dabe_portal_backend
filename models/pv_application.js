@@ -41,6 +41,14 @@ module.exports = (sequelize, Sequelize) => {
         fee: {
             type: Sequelize.FLOAT
         },
+        fee_amount_canton: {
+            type: Sequelize.FLOAT,
+            defaultValue: 0
+        },
+        fee_amount_municipality: {
+            type: Sequelize.FLOAT,
+            defaultValue: 0
+        },
         remark: {
             type: Sequelize.TEXT
         },

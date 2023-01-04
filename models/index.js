@@ -26,6 +26,7 @@ db.User = require("./users")(sequelize, Sequelize);
 db.GasOperator = require("./gas_operators")(sequelize, Sequelize);
 db.Address = require("./addresses")(sequelize, Sequelize);
 db.Activity = require("./activities")(sequelize, Sequelize);
+db.GlobalSetting = require("./global_settings")(sequelize, Sequelize);
 
 db.GasApplication.belongsTo(db.Municipality);
 db.Municipality.hasOne(db.GasApplication);
