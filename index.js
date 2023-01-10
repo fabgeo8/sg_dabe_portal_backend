@@ -15,6 +15,7 @@ const gasApplicationRouter = require('./routes/gasApplications');
 const pvApplicationRouter = require('./routes/pvApplications');
 const userRouter = require('./routes/users');
 const settingsRouter = require('./routes/settings');
+const gasOperatorRouter = require('./routes/gasOperators');
 
 const {application} = require("express");
 
@@ -56,6 +57,7 @@ app.use(apiPath + 'municipalities', municipalityRouter);
 app.use(apiPath + 'applications/gas', gasApplicationRouter);
 app.use(apiPath + 'applications/pv', pvApplicationRouter);
 app.use(apiPath + 'users', userRouter);
+app.use(apiPath + 'settings/gas_operators', gasOperatorRouter);
 
 
 // catch error request

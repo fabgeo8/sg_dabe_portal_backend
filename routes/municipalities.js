@@ -3,6 +3,7 @@ const router = express.Router();
 const models = require('../models')
 const { Op } = require("sequelize");
 const permissions = require("../services/permissions")
+const PushSettings = require("../services/pushSettings")
 
 router.get('/', async (req, res) => {
     try {
@@ -75,6 +76,8 @@ router.patch('/:municipalityid/addresses/:addressid', async (req, res) => {
         }
 
         await address.save()
+
+        await PushSettings.pushSettingsToFormSystem()
 
         res.status(200).send("Address updated")
     } catch (ex) {

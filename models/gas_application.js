@@ -50,6 +50,9 @@ module.exports = (sequelize, Sequelize) => {
         gas_operator: {
             type: Sequelize.STRING
         },
+        gas_operator_short: {
+            type: Sequelize.STRING
+        },
         remark: {
             type: Sequelize.TEXT
         },

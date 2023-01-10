@@ -17,6 +17,8 @@ const senderAddress = '"Formularsystem noreply" <' + process.env.SMTP_SENDER + '
 
 const transporter = nodemailer.createTransport(smtpConfig);
 
+const supportEmailAddress = 'dev@govforms.ch'
+
 module.exports = {
     sendUserActivationMessage(to) {
         try {
@@ -39,5 +41,21 @@ module.exports = {
             console.log("Error while sending email, activation message")
             throw new Error(ex.message)
         }
+    },
+    sendSupportNotification (subject, message) {
+        try {
+            /*let info = transporter.sendMail({
+                from: senderAddress, // sender address
+                to: supportEmailAddress, // list of receivers
+                subject: subject, // Subject line
+                text: message, // plain text body
+                html: message // html body
+            })
+            console.log(info)*/
+        } catch (ex) {
+            console.log("Error while sending email, support notification")
+            throw new Error(ex.message)
+        }
     }
+
 }

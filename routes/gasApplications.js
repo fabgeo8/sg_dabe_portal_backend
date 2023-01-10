@@ -6,7 +6,7 @@ const Status = require("../utils/status");
 const permissions = require("../services/permissions");
 const Activity = require("../services/activities");
 
-const GAS_ATTRIBUTES = ['id', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'fuel_type', 'address', 'object_plot', 'generator_area', 'boiler_replacement_year', 'gas_operator', 'year_of_construction', 'status', 'remark', 'last_status_date', 'status_changed_dates', 'MunicipalityId']
+const GAS_ATTRIBUTES = ['id', 'createdAt', 'identifier', 'version', 'object_egid', 'object_street', 'object_streetnumber', 'object_zip', 'object_city', 'fuel_type', 'address', 'object_plot', 'generator_area', 'boiler_replacement_year', 'gas_operator', 'gas_operator_short', 'year_of_construction', 'status', 'remark', 'last_status_date', 'status_changed_dates', 'MunicipalityId']
 
 router.get('/', async (req, res) => {
     try {
@@ -336,8 +336,14 @@ router.patch('/:id', async (req, res) => {
 
         if ((req.body.gas_operator || req.body.gas_operator === '') &&
             req.body.gas_operator !== gasApplication.gas_operator) {
-            gasApplication.gas_operator = req.body.gas_operator
-            activityLog.push(Activity.buildGasActivity('Gasversorger', req.user, gasApplication))
+
+            let gasOperator = await models.GasOperator.findOne({where: {name: req.body.gas_operator}})
+
+            if (gasOperator) {
+                gasApplication.gas_operator = gasOperator.name
+                gasApplication.gas_operator_short = gasOperator.short_name
+                activityLog.push(Activity.buildGasActivity('Gasversorger', req.user, gasApplication))
+            }
         }
 
         if ((req.body.fuel_type || req.body.fuel_type === '') &&
