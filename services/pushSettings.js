@@ -13,7 +13,7 @@ module.exports = {
 
             const requestConfig = {
                 headers:{
-                    Authorization: `Bearer ${process.env.ACCESS_KEY_FORMSYSTEM}`
+                    'Authorization': `Bearer ${process.env.ACCESS_KEY_FORMSYSTEM}`
                 }
             };
 
