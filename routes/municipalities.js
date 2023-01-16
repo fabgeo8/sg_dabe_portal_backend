@@ -11,9 +11,10 @@ router.get('/', async (req, res) => {
 
         // if user is municipality user, only return list with single municipality
         if (req.user.MunicipalityId) {
-            municipals = await models.Municipality.findByPk(req.user.MunicipalityId)
+            let municipality = await models.Municipality.findByPk(req.user.MunicipalityId)
+            // add to array so response type does not change
+            municipals.push(municipality)
         } else {
-
             permissions.checkCantonPermission(req.user)
             municipals = await models.Municipality.findAll({
                 attributes: ['id', 'name'],

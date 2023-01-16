@@ -26,9 +26,9 @@ module.exports = {
                 let info = transporter.sendMail({
                     from: senderAddress, // sender address
                     to: to, // list of receivers
-                    subject: "Ihr Benutzer wurde freigeschaltet", // Subject line
-                    text: "Sie wurden erfolgreich für die Applikation 'Formularsystem Portal' freigeschaltet. Melden Sie sich an über " + process.env.CORS_ORIGIN + "/login", // plain text body
-                    html: "<p>Sie wurden erfolgreich für die Applikation 'Formularsystem Portal' freigeschaltet. Melden Sie sich an über <a href='"+ process.env.CORS_ORIGIN +"/login'>" + process.env.CORS_ORIGIN + "/login</a></p>" // html body
+                    subject: "Ihr Benutzer ist freigeschaltet", // Subject line
+                    text: "Sie wurden erfolgreich für die Applikation 'Formularsystem Portal' freigeschaltet. Sie können sich nun unter " + process.env.CORS_ORIGIN + " anmelden und die Applikation nutzen", // plain text body
+                    html: "<p>Sie wurden erfolgreich für die Applikation 'Formularsystem Portal' freigeschaltet. Sie können sich nun unter <a href='" + process.env.CORS_ORIGIN + "'>" + process.env.CORS_ORIGIN + "/login</a> anmelden und die Applikation nutzen</p>" // html body
                 }, (err, info) => {
                     console.log(info);
                     console.log(err);
@@ -44,14 +44,14 @@ module.exports = {
     },
     sendSupportNotification (subject, message) {
         try {
-            /*let info = transporter.sendMail({
+            let info = transporter.sendMail({
                 from: senderAddress, // sender address
                 to: supportEmailAddress, // list of receivers
                 subject: subject, // Subject line
                 text: message, // plain text body
                 html: message // html body
             })
-            console.log(info)*/
+            console.log(info)
         } catch (ex) {
             console.log("Error while sending email, support notification")
             throw new Error(ex.message)

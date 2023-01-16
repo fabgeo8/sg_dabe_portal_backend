@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const models = require('../models')
 const permissions = require("../services/permissions");
+const PushSetting = require("../services/pushSettings");
 router.get('/global', async (req, res) => {
     try {
         permissions.checkCantonPermission(req.user);
@@ -23,6 +24,8 @@ router.patch('/global/:setting', async (req, res) => {
         setting.value = req.body.value
 
         await setting.save()
+
+        await PushSetting.pushSettingsToFormSystem();
 
         res.status(200).json({message: 'setting updated'})
     } catch (ex) {
