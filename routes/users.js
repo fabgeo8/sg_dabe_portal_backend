@@ -5,11 +5,12 @@ const {Op} = require("sequelize");
 const Status = require("../utils/status");
 const Roles = require("../utils/roles");
 const permissions = require("../services/permissions")
+const Scheduler = require("../services/scheduler")
 const Mailer = require("../services/mailer")
 
 const cantonLocation = 'canton';
 
-const accessableUserAttributes = ['fullname', 'id', 'email', 'createdAt', 'role', 'role_name']
+const accessableUserAttributes = ['fullname', 'id', 'email', 'createdAt', 'role', 'role_name', 'updatedAt']
 
 /*
  * User routes for canton users access
@@ -35,6 +36,26 @@ router.get('/canton', async (req, res) => {
         res.status(404).send({error: "user list could not be retrieved", message: ex.message})
     }
 })
+/*
+ * All users for complete active user list
+ */
+router.get('/all', async (req, res) => {
+    try {
+        permissions.checkAllUserPermission(req.user)
+
+        let users = await models.User.findAll({
+            order: [['fullname', 'ASC']],
+            where: {
+                is_authorized: true
+            },
+            attributes: accessableUserAttributes.concat(["MunicipalityId"])
+        })
+
+        res.json(users)
+    } catch (ex) {
+        res.status(404).send({error: "user list could not be retrieved", message: ex.message})
+    }
+})
 
 /*
  * get users that are not assigned to a municipality or canton
@@ -47,6 +68,20 @@ router.get('/unauthorized', async (req, res) => {
             order: [['createdAt', 'DESC']],
             where: {is_authorized: false},
             attributes: accessableUserAttributes
+        })
+
+        // delete inactive users that are older than predefined days, e.g. all older than 30 days
+        Scheduler.removeInactiveUsers()
+
+        let waitTimeSetting = await models.GlobalSetting.findOne({ where: {setting: 'inactive_user_wait_time'}})
+        let waitTime = waitTimeSetting.value
+        const now = new Date();
+        const removalDate = new Date(now.setDate(now.getDate() - waitTime));
+
+        users.forEach((u) => {
+            const diffTime = (u.updatedAt - removalDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            u.days_to_removal = diffDays
         })
 
         res.json(users)

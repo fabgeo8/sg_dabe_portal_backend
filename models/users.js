@@ -43,6 +43,12 @@ module.exports = (sequelize, Sequelize) => {
                     return 'undefined'
                 }
             }
+        },
+        days_to_removal: {
+            type: Sequelize.VIRTUAL,
+            set: function (val) {
+                this.setDataValue('days_to_removal', val);
+            }
         }
     });
 

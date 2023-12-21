@@ -16,6 +16,19 @@ router.get('/global', async (req, res) => {
     }
 })
 
+router.post('/global/', async (req, res) => {
+    try {
+        permissions.checkCantonPermission(req.user);
+        let setting = await models.GlobalSetting.build(req.body)
+
+        await setting.save()
+
+        res.status(200).json({message: 'setting created'})
+    } catch (ex) {
+        res.status(404).send({error: "settings could not be created", message: ex.message})
+    }
+})
+
 router.patch('/global/:setting', async (req, res) => {
     try {
         permissions.checkCantonPermission(req.user);
